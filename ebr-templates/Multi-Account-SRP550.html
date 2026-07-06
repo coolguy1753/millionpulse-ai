@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EBR Template — Multi-Account · SRP550 Template</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{
+  /* EBR PREMIUM — Navy · Sky · Light Grey (60-30-10) */
+  /* 60% Background — light grey/white with subtle cool undertone */
+  --bg-0:#F8FBFE;
+  --bg-1:#EEF3FA;
+  --bg-2:#E1EAF5;
+
+  /* 30% Cards — deep navy gradient (authority, trust) */
+  --card:#1A2D5C;
+  --card-hi:#233A75;
+  --card-warm:#142348;
+  --card-tint:#1F3568;
+  --card-border:rgba(255,255,255,0.16);
+  --card-border-hi:rgba(125,195,255,0.42);
+  --card-shine:rgba(255,255,255,0.10);
+
+  /* 10% Sky Blue — primary data accent */
+  --sky:#5BAFFF;
+  --sky-bright:#7DC3FF;
+  --sky-deep:#3B97F0;
+  --sky-soft:rgba(91,175,255,0.22);
+  --sky-glow:rgba(91,175,255,0.45);
+
+  /* Brand royal (used for emphasis ties) */
+  --royal:#1c55c6;
+  --royal-bright:#3B82F6;
+  --royal-glow:#5B8DFF;
+  --royal-soft:rgba(28,85,198,0.22);
+
+  /* Critical CTA — orange used sparingly */
+  --accent:#F26430;
+  --accent-bright:#FF7A45;
+  --accent-soft:rgba(242,100,48,0.22);
+
+  /* Status semantics */
+  --emerald:#10B981;
+  --emerald-soft:rgba(16,185,129,0.20);
+  --rose:#E11D48;
+  --rose-soft:rgba(225,29,72,0.18);
+  --gold:#D4A93E;
+  --gold-soft:rgba(212,169,62,0.22);
+
+  /* Legacy aliases (kept for charts that reference older names) */
+  --teal:var(--sky);
+  --teal-soft:var(--sky-soft);
+  --amber:#D97706;
+  --indigo:#6366F1;
+  --gold-bright:#E0B872;
+
+  /* Text — INSIDE dark navy cards (light) */
+  --txt:#F2F5FF;
+  --txt-2:#CFE0F5;
+  --txt-3:#9DB5D6;
+
+  /* Text — ON light grey/white bg (dark navy) */
+  --txt-dark:#0F1E40;
+  --txt-dark-2:#334155;
+  --txt-dark-3:#64748B;
+
+  --line:rgba(255,255,255,0.10);
+  --line-dark:rgba(15,30,75,0.10);
+
+  /* Shadows — deeper on light bg to give cards real lift */
+  --shadow:0 12px 32px rgba(15,30,75,0.16), 0 1px 0 var(--card-shine) inset, 0 0 0 1px rgba(15,30,75,0.04);
+  --shadow-hi:0 22px 60px rgba(15,30,75,0.26), 0 1px 0 rgba(255,255,255,0.18) inset, 0 0 0 1px rgba(15,30,75,0.08);
+
+  /* Aliases for legacy refs */
+  --glass:var(--card);
+  --glass-strong:var(--card-hi);
+  --glass-border:var(--card-border);
+  --glass-border-hi:var(--card-border-hi);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg-0);color:var(--txt-dark);font-family:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-feature-settings:"ss01","cv11";-webkit-font-smoothing:antialiased;height:100%;overflow:hidden}
+body{
+  background:
+    radial-gradient(ellipse 55% 55% at 10% 8%, rgba(91,175,255,0.18), transparent 60%),
+    radial-gradient(ellipse 45% 45% at 92% 5%, rgba(28,85,198,0.10), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 95%, rgba(91,175,255,0.10), transparent 65%),
+    linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 55%, var(--bg-2) 100%);
+}
+
+.deck{position:relative;width:100vw;height:100vh;overflow:hidden}
+.slide{position:absolute;inset:0;padding:32px 40px;display:none;flex-direction:column;gap:18px;animation:fade .4s cubic-bezier(.4,0,.2,1) both}
+.slide.active{display:flex}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* Top bar (every slide) */
+.topbar{display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:12px}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 16px var(--accent)}
+.brand .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--txt-dark-2);font-weight:600}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.slide-num{font-size:11px;color:var(--txt-dark-3);letter-spacing:.1em;font-variant-numeric:tabular-nums;font-weight:600}
+
+/* Headlines */
+h1{font-size:46px;font-weight:700;line-height:1.08;letter-spacing:-.02em}
+h2{font-size:30px;font-weight:600;line-height:1.15;letter-spacing:-.01em}
+h3{font-size:14px;font-weight:600;letter-spacing:.04em}
+.sub{font-size:14px;color:var(--txt-dark-2);line-height:1.55;max-width:780px}
+
+/* Premium elevated card — solid base + glossy top highlight */
+.glass{
+  background:linear-gradient(165deg, var(--card-hi) 0%, var(--card) 55%, var(--card-warm) 100%);
+  color:var(--txt);
+  border:1px solid var(--card-border);
+  border-radius:16px;
+  box-shadow:var(--shadow), 0 0 40px rgba(28,85,198,0.22);
+  padding:18px 20px;
+  transition:transform .3s cubic-bezier(.4,0,.2,1), border-color .3s ease, box-shadow .3s ease;
+  overflow:hidden;
+  position:relative;
+}
+.glass::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:48%;
+  background:linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+  border-radius:16px 16px 0 0;
+  pointer-events:none;
+}
+.glass::after{
+  content:"";position:absolute;top:0;left:14%;right:14%;height:1px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.20), transparent);
+  pointer-events:none;
+}
+.glass:hover{
+  transform:translateY(-3px);
+  border-color:var(--card-border-hi);
+  box-shadow:var(--shadow-hi), 0 0 64px rgba(28,85,198,0.38);
+}
+
+/* KPI card */
+.kpi{display:flex;flex-direction:column;justify-content:space-between;min-height:0}
+.kpi .lbl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--txt-3);font-weight:600;display:flex;align-items:center;gap:8px}
+.kpi .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.kpi .val{font-size:44px;font-weight:700;line-height:1;letter-spacing:-.02em;margin-top:6px;font-variant-numeric:tabular-nums}
+.kpi .ctx{font-size:12px;color:var(--txt-2);margin-top:6px;line-height:1.5}
+.spark-box{position:relative;height:38px;width:100%;margin-top:10px;flex-shrink:0}
+.spark-box canvas{position:absolute!important;inset:0;width:100%!important;height:100%!important}
+
+/* Chips */
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:5px 11px;border-radius:99px;border:1px solid}
+.chip.ok{color:#6EE7B7;border-color:var(--emerald-soft);background:var(--emerald-soft)}
+.chip.warn{color:#FCD34D;border-color:var(--amber-soft);background:var(--amber-soft)}
+.chip.danger{color:#FCA5A5;border-color:var(--rose-soft);background:var(--rose-soft)}
+.chip.accent{color:#FDBA74;border-color:var(--accent-soft);background:var(--accent-soft)}
+.chip.teal{color:#7DC3FF;border-color:var(--sky-soft);background:var(--sky-soft)}
+
+/* Navigation */
+.nav{position:fixed;bottom:24px;right:32px;display:flex;gap:8px;z-index:50}
+.nav button{
+  background:linear-gradient(165deg, var(--card-hi), var(--card));
+  border:1px solid var(--card-border);color:var(--txt);
+  width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:14px;
+  box-shadow:0 6px 18px rgba(15,40,100,0.20);
+  transition:.2s;display:flex;align-items:center;justify-content:center;
+}
+.nav button:hover{background:linear-gradient(165deg, var(--card-tint), var(--card-hi));border-color:var(--card-border-hi);transform:translateY(-1px)}
+.dots{position:fixed;bottom:32px;left:40px;display:flex;gap:6px;z-index:50}
+.dots span{width:6px;height:6px;border-radius:50%;background:rgba(15,40,100,0.22);cursor:pointer;transition:.2s}
+.dots span.on{background:var(--accent);width:22px;border-radius:99px;box-shadow:0 0 12px var(--accent)}
+
+/* Tables — modern */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 14px;color:var(--txt-3);font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;background:rgba(255,255,255,0.02)}
+td{padding:11px 14px;color:var(--txt);border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+tr:hover td{background:rgba(255,255,255,0.04)}
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums}
+.rank-ok{background:var(--emerald-soft);color:#6EE7B7;border:1px solid var(--emerald-soft)}
+.rank-warn{background:var(--accent-soft);color:#FDBA74;border:1px solid var(--accent-soft)}
+
+/* Cover Slide 1 */
+.cover-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;flex:1;min-height:0}
+.cover-left{display:grid;grid-template-rows:auto 1fr auto;gap:20px;align-content:stretch}
+.cover-title h1 .accent{background:linear-gradient(135deg, var(--royal) 0%, var(--sky) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.cover-story{padding:20px 24px;display:flex;flex-direction:column;gap:24px;justify-content:center}
+.cover-story .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--txt-3);font-weight:600;display:flex;align-items:center;justify-content:space-between}
+.cover-story .lbl::after{content:"";flex:1;height:1px;background:var(--line);margin-left:14px}
+.cover-story-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.story-tile{padding:16px 18px;border-radius:14px;background:rgba(8,16,34,0.55);border:1px solid var(--card-border);box-shadow:0 1px 0 rgba(255,255,255,0.04) inset, 0 6px 18px rgba(5,12,30,0.30);display:flex;flex-direction:column;gap:10px;justify-content:space-between;transition:.3s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;min-height:170px}
+.story-tile::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;border-radius:14px 14px 0 0}
+.story-tile.t1::before{background:linear-gradient(90deg, transparent, var(--emerald), transparent)}
+.story-tile.t1{box-shadow:0 1px 0 rgba(255,255,255,0.04) inset, 0 6px 18px rgba(5,12,30,0.30), 0 0 28px rgba(16,185,129,0.32)}
+.story-tile.t2::before{background:linear-gradient(90deg, transparent, var(--royal-bright), transparent)}
+.story-tile.t2{box-shadow:0 1px 0 rgba(255,255,255,0.04) inset, 0 6px 18px rgba(5,12,30,0.30), 0 0 28px rgba(28,85,198,0.36)}
+.story-tile.t3::before{background:linear-gradient(90deg, transparent, var(--accent), transparent)}
+.story-tile.t3{box-shadow:0 1px 0 rgba(255,255,255,0.04) inset, 0 6px 18px rgba(5,12,30,0.30), 0 0 28px rgba(242,100,48,0.36)}
+.story-tile:hover{background:rgba(12,22,46,0.65);transform:translateY(-3px);border-color:var(--card-border-hi);box-shadow:0 1px 0 rgba(255,255,255,0.08) inset, 0 12px 32px rgba(5,12,30,0.50)}
+.story-tile .tag{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+.story-tile.t1 .tag{color:var(--emerald)}
+.story-tile.t2 .tag{color:var(--royal-bright)}
+.story-tile.t3 .tag{color:var(--accent)}
+.story-tile .num{font-size:40px;font-weight:700;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+.story-tile.t1 .num{color:var(--emerald)}
+.story-tile.t2 .num{color:var(--royal-bright)}
+.story-tile.t3 .num{color:var(--accent)}
+.story-tile .line{font-size:11px;color:var(--txt-2);line-height:1.45}
+.cover-meta{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cover-meta .item{padding:14px 16px}
+.cover-meta .item .l{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-3);font-weight:600}
+.cover-meta .item .v{font-size:20px;font-weight:600;margin-top:6px;letter-spacing:-.01em}
+.cover-right{display:grid;grid-template-rows:auto 1fr;gap:14px;min-height:0}
+.cover-snapshot{padding:18px 20px}
+.cover-snap-title{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-3);font-weight:600;margin-bottom:14px}
+.cover-snap-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.snap-stat{padding:12px 14px;border-radius:12px;background:rgba(8,16,34,0.45);border:1px solid var(--card-border);box-shadow:0 1px 0 rgba(255,255,255,0.04) inset}
+.snap-stat .v{font-size:24px;font-weight:700;letter-spacing:-.01em}
+.snap-stat .l{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--txt-3);margin-top:4px;font-weight:600}
+.cover-spark{padding:14px 16px;min-height:0;display:flex;flex-direction:column}
+.cover-spark .h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cover-spark .h .t{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--txt-3);font-weight:600}
+.cover-spark canvas{flex:1;min-height:0}
+
+/* Slide 2 layout */
+.s2-grid{display:grid;grid-template-rows:auto auto 1fr;gap:14px;flex:1;min-height:0}
+.s2-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.s2-kpis .glass{padding:20px 22px;min-height:165px}
+.s2-google{display:grid;grid-template-columns:1.2fr 2fr;gap:14px;min-height:140px}
+.s2-google-head{padding:22px 26px;display:flex;flex-direction:column;gap:10px;justify-content:center}
+.s2-google-head .t{font-size:14px;font-weight:600;color:var(--teal);letter-spacing:.04em}
+.s2-google-head .s{font-size:12px;color:var(--txt-2);line-height:1.5}
+.s2-google-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:22px 22px}
+.s2-google-stats .item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 0}
+.s2-google-stats .v{font-size:36px;font-weight:700;color:var(--teal);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.s2-google-stats .l{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-3);margin-top:4px;font-weight:600;text-align:center}
+.s2-insights{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;min-height:0}
+.s2-insights .glass{display:flex;flex-direction:column;gap:8px;padding:16px 18px;min-height:155px;max-height:175px}
+.s2-insights .ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700}
+.ic-accent{background:var(--accent-soft);color:var(--accent)}
+.ic-teal{background:var(--teal-soft);color:var(--teal)}
+.ic-rose{background:var(--rose-soft);color:var(--rose)}
+.s2-insights .ttl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.s2-insights .body{font-size:12px;color:var(--txt-2);line-height:1.5;margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.s2-insights .body li{display:flex;gap:8px;align-items:flex-start}
+.s2-insights .body li::before{content:"•";color:var(--royal-glow);font-weight:700;flex-shrink:0;line-height:1.4}
+
+/* Slide 3 — 2x2 grid */
+.s3-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px;flex:1;min-height:0}
+.s3-grid .glass{display:flex;flex-direction:column;min-height:0;padding:16px 18px}
+.q-title{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--txt-2);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.chart-wrap{flex:1;min-height:0;position:relative}
+.theme-list{display:flex;flex-direction:column;gap:18px;flex:1;justify-content:space-evenly;padding:6px 0}
+.theme-row{display:flex;align-items:center;gap:12px;font-size:13px}
+.theme-row .nm{width:32%;color:var(--txt)}
+.theme-row .bar{flex:1;height:8px;background:rgba(8,16,34,0.55);border-radius:99px;overflow:hidden;position:relative;box-shadow:0 1px 0 rgba(255,255,255,0.04) inset}
+.theme-row .bar .fill{height:100%;background:linear-gradient(90deg, var(--royal), var(--sky));border-radius:99px;transition:width .8s ease;box-shadow:0 0 16px rgba(91,175,255,0.40)}
+.theme-row .cnt{font-weight:600;font-size:13px;color:var(--accent);font-variant-numeric:tabular-nums;width:50px;text-align:right}
+.quote-stack{display:flex;flex-direction:column;gap:10px;flex:1;justify-content:space-around}
+.quote-card{padding:12px 14px;border-radius:12px;background:rgba(8,16,34,0.45);border:1px solid var(--card-border);border-left:3px solid var(--accent);box-shadow:0 1px 0 rgba(255,255,255,0.04) inset;transition:.25s}
+.quote-card:hover{background:rgba(12,22,46,0.55);border-left-color:var(--gold);transform:translateX(2px)}
+.quote-card .t{font-family:Georgia,serif;font-style:italic;font-size:13px;line-height:1.5;color:var(--txt)}
+.quote-card .a{font-size:11px;color:var(--txt-3);margin-top:6px;letter-spacing:.04em}
+.quote-card .a strong{color:var(--accent);font-weight:600}
+
+/* Slide 4 */
+.s4-grid{display:grid;grid-template-rows:1.4fr 0.85fr;gap:14px;flex:1;min-height:0}
+.s4-timeline{padding:22px 28px;display:flex;flex-direction:column;gap:14px;overflow:hidden}
+.s4-tl-head{display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--card-border);padding-bottom:10px}
+.s4-tl-eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700;display:flex;align-items:center;gap:8px}
+.s4-tl-eyebrow .arr{width:18px;height:18px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;box-shadow:0 0 12px var(--accent-soft)}
+.s4-tl-title{font-size:15px;font-weight:700;color:var(--txt);letter-spacing:-.005em}
+.s4-tl-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;flex:1;min-height:0;align-items:start}
+.s4-tl-col{display:flex;flex-direction:column;gap:10px;position:relative;padding-right:18px}
+.s4-tl-col:not(:last-child)::after{content:"";position:absolute;right:0;top:24px;bottom:6px;width:1px;background:linear-gradient(180deg, transparent, var(--card-border) 20%, var(--card-border) 80%, transparent)}
+.s4-tl-when{font-size:11.5px;letter-spacing:.10em;text-transform:uppercase;color:var(--sky-bright);font-weight:700;display:flex;align-items:center;gap:10px}
+.s4-tl-when .dot{width:8px;height:8px;border-radius:50%;background:var(--sky);box-shadow:0 0 12px var(--sky)}
+.s4-tl-col ul{list-style:none;display:flex;flex-direction:column;gap:8px;padding:0;margin:0}
+.s4-tl-col li{font-size:13px;color:var(--txt);line-height:1.5;padding-left:22px;position:relative;font-weight:500}
+.s4-tl-col li::before{content:"→";position:absolute;left:0;top:0;color:var(--accent);font-weight:700;font-size:13px}
+.s4-friction, .s4-recs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.s4-friction{grid-template-columns:repeat(3,1fr)}
+.risk-card{padding:20px 22px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;min-height:150px}
+.risk-card .num{position:absolute;top:6px;right:14px;font-size:64px;font-weight:800;color:var(--accent-soft);letter-spacing:-.02em;line-height:1}
+.risk-card .ttl{font-size:13.5px;font-weight:600;color:var(--txt);margin-bottom:6px;position:relative;z-index:1}
+.risk-card .body{font-size:12.5px;color:var(--txt-2);line-height:1.6;position:relative;z-index:1}
+.risk-card .meter{margin-top:10px;height:4px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden}
+.risk-card .meter .f{height:100%;background:linear-gradient(90deg, var(--rose), var(--accent))}
+.rec-card{padding:18px 20px;position:relative;display:flex;flex-direction:column;justify-content:center;min-height:140px}
+.rec-card .num{position:absolute;top:4px;right:10px;font-size:48px;font-weight:800;color:rgba(91,175,255,0.22);line-height:1}
+.rec-card .ttl{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:6px;position:relative;z-index:1}
+.rec-card .body{font-size:12px;color:var(--txt-2);line-height:1.6;position:relative;z-index:1}
+.s4-verdict{display:grid;grid-template-columns:1fr 1fr;gap:14px;min-height:0}
+.verdict-col{padding:32px 36px;display:grid;grid-template-rows:auto auto auto auto;gap:18px;min-height:0;align-content:start}
+.verdict-col h3{font-size:14px;letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:12px;font-weight:700;margin:0}
+.verdict-col h3 .ic{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;font-weight:700}
+.verdict-protect h3{color:var(--emerald)}
+.verdict-protect h3 .ic{background:var(--emerald)}
+.verdict-close h3{color:var(--accent)}
+.verdict-close h3 .ic{background:var(--accent)}
+.verdict-hero{display:flex;align-items:baseline;gap:14px;padding:12px 14px;border-radius:12px;background:rgba(8,16,34,0.45);border:1px solid var(--card-border);box-shadow:0 1px 0 rgba(255,255,255,0.04) inset}
+.verdict-hero .big{font-size:36px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1}
+.verdict-hero .small{font-size:11px;color:var(--txt-3);letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.verdict-hero .sm-detail{font-size:12px;color:var(--txt);margin-top:2px}
+.verdict-col ul{list-style:none;display:flex;flex-direction:column;gap:12px;margin:0;padding:0}
+.verdict-col li{display:flex;gap:12px;font-size:14.5px;color:var(--txt);line-height:1.6}
+.verdict-col li::before{content:"→";color:var(--accent);font-weight:700;flex-shrink:0;width:14px}
+.verdict-protect li::before{color:var(--emerald)}
+.verdict-cta{padding:10px 14px;border-radius:12px;background:rgba(8,16,34,0.45);border:1px solid var(--card-border);box-shadow:0 1px 0 rgba(255,255,255,0.04) inset;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11.5px}
+.verdict-cta .l{color:var(--txt-2);letter-spacing:.04em}
+.verdict-cta .r{font-weight:600}
+
+/* Slide 5 */
+.s5-grid{display:grid;grid-template-columns:1.3fr 1.05fr;gap:14px;flex:1;min-height:0;align-items:stretch}
+.s5-tables{display:flex;flex-direction:column;gap:14px;min-height:0;height:100%}
+.lb-card{padding:16px 20px;display:flex;flex-direction:column;justify-content:center;flex:1;min-height:0}
+.lb-card .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.lb-card .head .t{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.lb-card.top .head .t{color:var(--emerald)}
+.lb-card.bot .head .t{color:var(--accent)}
+.lb-table{overflow:auto}
+.lb-table table{font-size:14.5px}
+.lb-table th{font-size:11px;padding:12px 16px;letter-spacing:.1em}
+.lb-table td{padding:15px 16px;font-size:14.5px}
+.lb-table .rank-badge{width:28px;height:28px;font-size:12.5px}
+.s5-coaching{padding:18px 22px;display:flex;flex-direction:column;gap:16px;justify-content:space-between;height:100%}
+.s5-coaching .srs-section{flex:1;justify-content:center}
+.s5-coaching .head{display:flex;align-items:center;justify-content:space-between}
+.s5-coaching .head .t{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--txt-2)}
+.coach-row{padding:14px 16px;border-radius:12px;background:rgba(8,16,34,0.45);border:1px solid var(--card-border);box-shadow:0 1px 0 rgba(255,255,255,0.04) inset;transition:.25s}
+.coach-row:hover{border-color:var(--card-border-hi);transform:translateX(2px);background:rgba(12,22,46,0.55)}
+.coach-row .nm-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.coach-row .nm{font-weight:600;font-size:13px}
+.coach-row .body{font-size:11.5px;color:var(--txt-2);line-height:1.5}
+.mm-card{padding:14px 16px;background:linear-gradient(135deg,rgba(242,100,48,0.12),rgba(91,175,255,0.10));border:1px solid var(--accent-soft);border-radius:14px;display:flex;flex-direction:column;gap:8px}
+.mm-card .t{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;display:flex;align-items:center;gap:8px}
+.mm-card .t .ic{width:20px;height:20px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700}
+.mm-card .body{font-size:12.5px;color:var(--txt);line-height:1.55}
+.srs-section{display:flex;flex-direction:column;gap:10px}
+.srs-section .srs-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;padding-bottom:6px;border-bottom:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center}
+.srs-section .srs-label.top{color:var(--emerald)}
+.srs-section .srs-label.bot{color:var(--accent)}
+.srs-section .srs-label .bench{font-size:10.5px;letter-spacing:.06em;color:var(--txt-2);font-weight:500;text-transform:none}
+.srs-row{display:flex;align-items:center;gap:14px;padding:13px 16px;border-radius:12px;background:rgba(8,16,34,0.45);border:1px solid var(--card-border);box-shadow:0 1px 0 rgba(255,255,255,0.04) inset;transition:.25s}
+.srs-row:hover{border-color:var(--card-border-hi);transform:translateX(2px);background:rgba(12,22,46,0.55)}
+.srs-row .rank-badge{width:30px;height:30px;font-size:13px}
+.srs-row .srs-nm{flex:1;min-width:0}
+.srs-row .nm{font-weight:600;font-size:14.5px;line-height:1.2}
+.srs-row .meta{font-size:12px;color:var(--txt-2);line-height:1.2;margin-top:3px}
+.srs-row .srs-val{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.01em;min-width:54px;text-align:right}
+.srs-row.top .srs-val{color:var(--emerald)}
+.srs-row.bot .srs-val{color:var(--accent)}
+
+/* === ORG-LEVEL CROSS-BRAND SCORECARD (Slide 2) === */
+.s2-org-grid{display:grid;grid-template-rows:1.6fr auto auto;gap:14px;flex:1;min-height:0}
+.s2-org-grid > .brand-card{grid-row:1}
+.s2-org-grid{grid-template-columns:1fr 1fr 1fr}
+.brand-card{padding:18px 20px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden;min-height:0}
+.brand-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0}
+.brand-abm::before{background:linear-gradient(90deg, transparent, var(--royal-bright), transparent)}
+.brand-gf::before{background:linear-gradient(90deg, transparent, var(--emerald), transparent)}
+.brand-mull::before{background:linear-gradient(90deg, transparent, var(--accent), transparent)}
+.brand-head{display:flex;flex-direction:column;gap:4px}
+.brand-tag{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--txt-3)}
+.brand-abm .brand-tag{color:var(--royal-bright)}
+.brand-gf .brand-tag{color:var(--emerald)}
+.brand-mull .brand-tag{color:var(--accent)}
+.brand-name{font-size:19px;font-weight:700;letter-spacing:-.01em;line-height:1.2}
+.brand-sub{font-weight:500;color:var(--txt-2)}
+.brand-hero{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-radius:12px;background:rgba(8,16,34,0.45);border:1px solid var(--card-border)}
+.brand-nps{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1;color:var(--emerald);font-variant-numeric:tabular-nums}
+.brand-nps .suffix{font-size:10px;color:var(--txt-3);letter-spacing:.14em;text-transform:uppercase;margin-left:6px;font-weight:600;vertical-align:middle}
+.brand-metrics{display:flex;flex-direction:column;gap:6px;flex:1}
+.bm-row{display:flex;justify-content:space-between;align-items:center;padding:5px 2px;border-bottom:1px solid var(--line);font-size:12.5px}
+.bm-row:last-child{border-bottom:none}
+.bm-l{color:var(--txt-3);letter-spacing:.04em}
+.bm-v{font-weight:600;color:var(--txt);font-variant-numeric:tabular-nums}
+.brand-foot{font-size:11px;color:var(--txt-2);line-height:1.5;padding-top:6px;border-top:1px solid var(--line)}
+.portfolio-rollup{padding:16px 22px;display:flex;flex-direction:column;gap:12px;grid-column:1/-1;grid-row:2}
+.pr-head{display:flex;align-items:center;justify-content:space-between}
+.pr-tag{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.pr-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.pr-stat{display:flex;flex-direction:column;gap:4px;padding-right:14px;border-right:1px solid var(--line)}
+.pr-stat:last-child{border-right:none;padding-right:0}
+.pr-v{font-size:24px;font-weight:700;color:var(--txt);letter-spacing:-.01em;line-height:1;font-variant-numeric:tabular-nums}
+.pr-l{font-size:10px;color:var(--txt-3);letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.s2-org-grid .s2-google{grid-column:1/-1;grid-row:3}
+
+/* Slide 6 — Renewal */
+.s6-grid{display:grid;grid-template-rows:auto auto 1fr;gap:16px;flex:1;min-height:0}
+.s6-stats{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px}
+.adopt-card{padding:18px 20px;display:flex;align-items:center;gap:18px;position:relative;overflow:hidden}
+.adopt-gauge{position:relative;width:96px;height:96px;flex-shrink:0}
+.adopt-gauge .v{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:var(--accent)}
+.adopt-info{display:flex;flex-direction:column;gap:4px}
+.adopt-info .l{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-3);font-weight:600}
+.adopt-info .v{font-size:22px;font-weight:700;letter-spacing:-.01em}
+.adopt-info .c{font-size:11px;color:var(--txt-2)}
+.timeline{padding:24px 30px;flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center}
+.tl-row{display:flex;align-items:flex-start;justify-content:space-between;position:relative;margin:24px 20px 0}
+.tl-row::before{content:"";position:absolute;top:19px;left:5%;right:5%;height:3px;background:linear-gradient(90deg, var(--emerald), var(--accent), var(--teal));border-radius:99px;z-index:0;opacity:0.55}
+.tl-node{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:160px}
+.tl-node .dot{width:38px;height:38px;border-radius:50%;background:var(--bg-1);border:3px solid;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+.tl-node.now .dot{border-color:var(--emerald);color:var(--emerald);box-shadow:0 0 0 6px rgba(16,185,129,0.18)}
+.tl-node.urgent .dot{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 6px rgba(242,100,48,0.18), 0 0 28px var(--accent);animation:pulse 2s ease-in-out infinite}
+.tl-node.future .dot{border-color:var(--teal);color:var(--teal);box-shadow:0 0 0 6px rgba(6,182,212,0.15)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 6px rgba(242,100,48,0.18), 0 0 28px var(--accent)}50%{box-shadow:0 0 0 10px rgba(242,100,48,0.30), 0 0 40px var(--accent)}}
+.tl-node .lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+.tl-node.now .lbl{color:var(--emerald)}
+.tl-node.urgent .lbl{color:var(--accent)}
+.tl-node.future .lbl{color:var(--teal)}
+.tl-node .date{font-size:15px;font-weight:600}
+.tl-node .sub{font-size:10px;color:var(--txt-3);text-align:center}
+.s6-bottom{display:grid;grid-template-columns:1fr;gap:14px;min-height:0}
+.notice-card{padding:20px 24px;background:linear-gradient(165deg, var(--card-hi) 0%, var(--card) 55%, var(--card-warm) 100%);border:1px solid var(--card-border);border-left:4px solid var(--accent);border-radius:16px;display:flex;flex-direction:column;gap:12px;color:var(--txt);box-shadow:var(--shadow);position:relative;overflow:hidden}
+.notice-card::before{content:"";position:absolute;top:0;left:0;right:0;height:48%;background:linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%);pointer-events:none;border-radius:0 16px 0 0}
+.notice-card .head{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+.notice-card .head .ic{width:38px;height:38px;border-radius:50%;background:var(--accent);box-shadow:0 0 24px var(--accent-soft);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:20px;flex-shrink:0}
+.notice-card .head .t{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-bright);font-weight:700}
+.notice-card .head .hl{font-size:18px;font-weight:700;color:var(--txt);margin-top:2px;letter-spacing:-.01em}
+.notice-card .body{font-size:13px;color:var(--txt-2);line-height:1.6;position:relative;z-index:1}
+.notice-card .gap{font-size:13px;color:var(--accent-bright);font-weight:600;line-height:1.55;padding:10px 14px;border-radius:10px;background:rgba(242,100,48,0.12);border:1px solid var(--accent-soft);position:relative;z-index:1}
+.checklist{padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-height:0;overflow:auto}
+.checklist .head{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-2);font-weight:600;margin-bottom:4px}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(8,16,34,0.4);border:1px solid var(--card-border);font-size:12.5px;line-height:1.5;transition:.2s;cursor:pointer}
+.check-item:hover{background:rgba(12,22,46,0.6);border-color:var(--card-border-hi)}
+.check-item .box{width:16px;height:16px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px}
+
+/* ════════════════════════════════════════════════════════════════ */
+/* SRP UPSELL SLIDES (07 + 08) — only present on SRP550 client decks */
+/* ════════════════════════════════════════════════════════════════ */
+:root{
+  --srp-light-card:#FFFFFF;
+  --srp-light-card-hi:#F4F8FE;
+  --srp-light-card-border:rgba(28,85,198,0.10);
+  --srp-light-card-border-hi:rgba(28,85,198,0.28);
+  --srp-royal-soft-2:rgba(28,85,198,0.32);
+  --srp-royal-deep:#0F3D9B;
+  --srp-gold:#F5C842;
+  --srp-gold-deep:#D4A93E;
+  --srp-gold-soft:rgba(245,200,66,0.22);
+  --srp-gold-glow:rgba(245,200,66,0.42);
+  --srp-shadow-light:0 8px 24px rgba(15,30,75,0.06), 0 1px 0 rgba(255,255,255,0.30) inset;
+  --srp-shadow-light-hi:0 18px 44px rgba(15,30,75,0.14), 0 1px 0 rgba(255,255,255,0.40) inset;
+}
+
+.pkg-badge{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:9px 20px;border-radius:99px;
+  background:linear-gradient(135deg, var(--accent) 0%, #C84A1E 100%);
+  color:#fff;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  box-shadow:0 8px 24px rgba(242,100,48,0.40), 0 1px 0 rgba(255,255,255,0.20) inset;
+  align-self:flex-start;
+}
+.pkg-badge .ic{font-size:13px;line-height:1}
+
+/* SLIDE 7 — SRP550 */
+.s550-grid{display:grid;grid-template-columns:0.85fr 1.55fr;gap:18px;flex:1;min-height:0}
+.s550-hero{
+  padding:30px 32px 28px;border-radius:16px;
+  background:linear-gradient(165deg, var(--card-hi) 0%, var(--card) 55%, var(--card-warm) 100%);
+  color:var(--txt);border:1px solid var(--card-border);
+  box-shadow:var(--shadow), 0 0 40px rgba(28,85,198,0.24);
+  display:flex;flex-direction:column;gap:16px;justify-content:flex-start;
+  position:relative;overflow:hidden;
+}
+.s550-hero::before{content:"";position:absolute;top:0;left:14%;right:14%;height:1px;background:linear-gradient(90deg, transparent, rgba(255,255,255,0.20), transparent)}
+.s550-hero::after{content:"";position:absolute;bottom:-100px;right:-80px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle, var(--srp-royal-soft-2) 0%, transparent 70%);pointer-events:none}
+.s550-hero .hero-top{display:flex;flex-direction:column;gap:13px;position:relative;z-index:1}
+.s550-title{font-size:72px;font-weight:800;letter-spacing:-.04em;line-height:1;background:linear-gradient(135deg, #FFFFFF 0%, var(--sky-bright) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;margin-top:4px}
+.s550-sub{font-size:21px;font-weight:600;color:#FFFFFF;line-height:1.25;letter-spacing:-.01em}
+.s550-desc{font-size:14px;color:var(--txt-2);line-height:1.55;position:relative;z-index:1}
+.s550-divider{height:1px;background:linear-gradient(90deg, transparent, var(--card-border-hi), transparent);position:relative;z-index:1;margin:2px 0}
+.s550-bens-h{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--accent);position:relative;z-index:1;display:flex;align-items:center;gap:10px}
+.s550-bens-h::after{content:"";flex:1;height:1px;background:var(--line);margin-left:6px}
+.s550-bens{list-style:none;display:flex;flex-direction:column;gap:10px;position:relative;z-index:1}
+.s550-bens li{display:flex;align-items:flex-start;gap:13px;font-size:14px;color:var(--txt);line-height:1.4;font-weight:500}
+.s550-bens li .check{flex-shrink:0;margin-top:2px;width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg, var(--accent) 0%, #C84A1E 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(242,100,48,0.36);color:#fff;font-size:11px;font-weight:700}
+.s550-caps-wrap{display:grid;grid-template-rows:auto 1.2fr 1fr;gap:14px;min-height:0}
+.s550-caps-head{display:flex;flex-direction:column;gap:6px;padding:0 4px}
+.s550-caps-head .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.s550-caps-head h2{font-size:26px;font-weight:700;color:var(--txt-dark);letter-spacing:-.02em;line-height:1.2}
+.s550-caps{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;min-height:0}
+.cap-tile{padding:16px 18px;border-radius:14px;background:linear-gradient(165deg, var(--srp-light-card) 0%, var(--srp-light-card-hi) 100%);color:var(--txt-dark);border:1px solid var(--srp-light-card-border);box-shadow:var(--srp-shadow-light);display:flex;flex-direction:column;position:relative;overflow:hidden;cursor:pointer;transition:padding .4s cubic-bezier(.4,0,.2,1), box-shadow .35s, border-color .35s, transform .35s, background .35s}
+.cap-tile::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg, transparent, var(--sky), transparent);opacity:0.7;transition:opacity .35s}
+.cap-tile::after{content:"";position:absolute;bottom:-30px;right:-30px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle, var(--sky-soft) 0%, transparent 70%);pointer-events:none;opacity:0.5;transition:opacity .35s}
+.cap-tile:hover{background:linear-gradient(165deg, #FFFFFF 0%, #EAF3FE 100%);transform:translateY(-3px);border-color:var(--srp-light-card-border-hi);box-shadow:var(--srp-shadow-light-hi), 0 0 36px rgba(91,175,255,0.30)}
+.cap-tile:hover::before{opacity:1}
+.cap-tile:hover::after{opacity:0.85}
+.cap-default{display:flex;align-items:center;gap:12px;margin-top:auto;margin-bottom:auto;transition:margin .4s cubic-bezier(.4,0,.2,1);position:relative;z-index:1}
+.cap-tile:hover .cap-default{margin-top:0;margin-bottom:0}
+.cap-icon{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg, var(--sky) 0%, var(--sky-deep) 100%);color:#FFFFFF;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 16px rgba(91,175,255,0.40), 0 1px 0 rgba(255,255,255,0.30) inset;transition:transform .35s, box-shadow .35s}
+.cap-tile:hover .cap-icon{transform:scale(1.06);box-shadow:0 10px 22px rgba(91,175,255,0.55), 0 1px 0 rgba(255,255,255,0.30) inset}
+.cap-icon svg{width:20px;height:20px;stroke-width:2}
+.cap-ttl{font-size:13px;font-weight:700;color:var(--txt-dark);letter-spacing:-.005em;line-height:1.25}
+.cap-points{list-style:none;display:flex;flex-direction:column;gap:5px;max-height:0;opacity:0;margin-top:0;overflow:hidden;transition:max-height .4s cubic-bezier(.4,0,.2,1), opacity .3s .12s, margin-top .4s;position:relative;z-index:1}
+.cap-tile:hover .cap-points{max-height:140px;opacity:1;margin-top:10px}
+.cap-points li{font-size:11px;color:var(--txt-dark-2);line-height:1.4;padding-left:18px;position:relative;font-weight:500}
+.cap-points li::before{content:"";position:absolute;left:0;top:3px;width:12px;height:12px;border-radius:4px;background:var(--sky-soft);border:1px solid var(--sky-soft)}
+.cap-points li::after{content:"✓";position:absolute;left:2.5px;top:0.5px;font-size:8.5px;font-weight:700;color:var(--sky-deep)}
+.s550-visual{position:relative;border-radius:16px;background:radial-gradient(ellipse 50% 70% at 50% 50%, rgba(91,175,255,0.18) 0%, transparent 70%),linear-gradient(165deg, #FFFFFF 0%, #F0F6FE 100%);border:1px solid var(--srp-light-card-border);box-shadow:var(--srp-shadow-light);padding:14px 18px;overflow:hidden;display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center}
+.s550-visual::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle, rgba(28,85,198,0.12) 1px, transparent 1.5px);background-size:14px 14px;background-position:center;opacity:0.5;pointer-events:none}
+.rev-card{background:#FFFFFF;border-radius:12px;border:1px solid rgba(28,85,198,0.12);box-shadow:0 4px 14px rgba(15,30,75,0.08);padding:10px 14px;position:relative;z-index:1;display:flex;flex-direction:column;gap:6px}
+.rev-card .head{display:flex;flex-direction:column;gap:2px;align-items:center;border-bottom:1px solid rgba(28,85,198,0.10);padding-bottom:6px}
+.rev-card .head .t{font-size:10px;font-weight:700;color:var(--txt-dark);letter-spacing:.02em}
+.rev-card .head .pb{font-size:7.5px;color:var(--txt-dark-3);letter-spacing:.05em}
+.rev-card .top-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rev-card .rating{display:flex;flex-direction:column;gap:2px}
+.rev-card .rating .v{font-size:18px;font-weight:700;color:var(--txt-dark);line-height:1}
+.rev-card .rating .stars{color:var(--srp-gold);font-size:9px;letter-spacing:1px}
+.rev-card .rating .l{font-size:8px;color:var(--txt-dark-3);letter-spacing:.04em}
+.rev-card .total{text-align:right}
+.rev-card .total .v{font-size:14px;font-weight:700;color:var(--txt-dark);line-height:1}
+.rev-card .total .l{font-size:8px;color:var(--txt-dark-3);letter-spacing:.04em;margin-top:2px}
+.rev-bars{display:flex;flex-direction:column;gap:3px;margin-top:2px}
+.rev-bar{display:flex;align-items:center;gap:6px;font-size:8.5px;color:var(--txt-dark-2);font-weight:500}
+.rev-bar .star{color:var(--srp-gold);font-size:8px;flex-shrink:0}
+.rev-bar .bar{flex:1;height:4px;background:rgba(28,85,198,0.10);border-radius:99px;overflow:hidden}
+.rev-bar .fill{height:100%;background:linear-gradient(90deg, var(--sky-deep), var(--sky));border-radius:99px}
+.rev-bar .pct{font-size:8px;color:var(--txt-dark-3);min-width:30px;text-align:right;font-variant-numeric:tabular-nums}
+.social-cluster{display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:1;padding:0 4px}
+.social-cluster .ic-row{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;max-width:180px}
+.social-ic{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#FFFFFF;border:1px solid rgba(28,85,198,0.12);box-shadow:0 4px 10px rgba(15,30,75,0.10);transition:transform .3s}
+.social-ic:hover{transform:translateY(-2px)}
+.social-ic svg{width:16px;height:16px}
+.social-cluster .lbl-row{font-size:9.5px;color:var(--txt-dark-2);text-align:center;line-height:1.3;font-weight:500;max-width:180px}
+.social-cluster .lbl-row strong{color:var(--royal);font-weight:700}
+.post-card{background:#FFFFFF;border-radius:12px;border:1px solid rgba(28,85,198,0.12);box-shadow:0 4px 14px rgba(15,30,75,0.08);padding:10px 12px;position:relative;z-index:1;display:flex;flex-direction:column;gap:7px}
+.post-head{display:flex;align-items:center;gap:8px}
+.post-fb{width:24px;height:24px;border-radius:50%;background:#1877F2;color:#FFFFFF;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;font-family:Georgia,serif}
+.post-co{display:flex;flex-direction:column;line-height:1.1}
+.post-co .nm{font-size:10px;font-weight:700;color:var(--txt-dark)}
+.post-co .tm{font-size:8px;color:var(--txt-dark-3);margin-top:1px}
+.post-body{font-size:9.5px;color:var(--txt-dark-2);line-height:1.4}
+.post-review{display:flex;align-items:flex-start;gap:8px;padding:8px;background:rgba(91,175,255,0.06);border-radius:8px;border:1px solid rgba(28,85,198,0.08)}
+.post-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg, var(--accent), #C84A1E);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.post-reviewer{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
+.post-reviewer .nm{font-size:9.5px;font-weight:700;color:var(--txt-dark);letter-spacing:-.01em}
+.post-reviewer .co{font-size:8.5px;color:var(--txt-dark-3)}
+.post-foot{display:flex;align-items:center;justify-content:space-between;padding-top:6px;border-top:1px solid rgba(28,85,198,0.08);font-size:9px;color:var(--txt-dark-3);font-weight:500}
+.post-foot .lk{display:flex;align-items:center;gap:4px;color:var(--royal);font-weight:600}
+.post-foot .lk::before{content:"👍";font-size:10px}
+
+/* SLIDE 8 — SRP850 */
+.s850-head{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;text-align:center;padding-top:4px;min-height:52px}
+.s850-head .pkg-badge{position:absolute;left:0;top:8px;align-self:auto}
+.s850-head .s850-plus{position:absolute;right:0;top:8px}
+.s850-title{font-size:74px;font-weight:800;letter-spacing:-.04em;line-height:1;background:linear-gradient(135deg, var(--royal-bright) 0%, var(--royal) 50%, var(--srp-royal-deep) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.s850-sub{font-size:21px;font-weight:600;color:var(--txt-dark);line-height:1.25;letter-spacing:-.01em;max-width:760px;margin-top:2px}
+.s850-sub .accent-blue{background:linear-gradient(135deg, var(--royal-bright) 0%, var(--sky) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.s850-plus{display:inline-flex;align-items:center;gap:10px;padding:9px 18px;border-radius:99px;background:linear-gradient(135deg, var(--srp-gold) 0%, var(--srp-gold-deep) 100%);color:#1F1B0B;font-size:11.5px;font-weight:700;letter-spacing:.04em;box-shadow:0 8px 24px var(--srp-gold-glow), 0 1px 0 rgba(255,255,255,0.30) inset}
+.s850-plus .check{width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.18);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.s850-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;flex:1;min-height:0}
+.s850-card{padding:28px 28px 26px;border-radius:20px;background:linear-gradient(165deg, #FFFFFF 0%, #EAF3FE 55%, #D8E7FE 100%);color:var(--txt-dark);border:1px solid rgba(28,85,198,0.16);box-shadow:0 12px 32px rgba(15,30,75,0.10), 0 1px 0 rgba(255,255,255,0.50) inset;display:flex;flex-direction:column;gap:16px;position:relative;overflow:hidden;transition:.3s cubic-bezier(.4,0,.2,1)}
+.s850-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg, transparent, var(--sky-deep), transparent)}
+.s850-card::after{content:"";position:absolute;bottom:-80px;right:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle, rgba(91,175,255,0.18) 0%, transparent 70%);pointer-events:none;opacity:0.7}
+.s850-card:hover{transform:translateY(-5px);border-color:rgba(28,85,198,0.36);box-shadow:0 22px 60px rgba(15,30,75,0.14), 0 0 56px rgba(91,175,255,0.34), 0 1px 0 rgba(255,255,255,0.60) inset}
+.card-head{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
+.s850-icon{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg, var(--sky) 0%, var(--royal-bright) 55%, var(--srp-royal-deep) 100%);color:#FFFFFF;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 28px rgba(91,175,255,0.50), 0 1px 0 rgba(255,255,255,0.24) inset}
+.s850-icon svg{width:32px;height:32px;stroke-width:2}
+.card-num{font-size:14px;font-weight:800;color:var(--royal);letter-spacing:.16em;font-variant-numeric:tabular-nums;padding:6px 14px;border-radius:99px;background:rgba(28,85,198,0.10);border:1px solid rgba(28,85,198,0.18)}
+.s850-card .ttl{font-size:24px;font-weight:700;letter-spacing:-.01em;color:var(--txt-dark);line-height:1.2;position:relative;z-index:1}
+.s850-card .body{font-size:13.5px;color:var(--txt-dark-2);line-height:1.55;position:relative;z-index:1}
+.s850-card .body strong{font-weight:700}
+.s850-bullets{list-style:none;display:flex;flex-direction:column;gap:9px;position:relative;z-index:1}
+.s850-bullets li{font-size:13.5px;color:var(--txt-dark-2);line-height:1.4;padding-left:26px;position:relative;font-weight:500}
+.s850-bullets li::before{content:"";position:absolute;left:0;top:2px;width:17px;height:17px;border-radius:5px;background:var(--sky-soft);border:1px solid rgba(91,175,255,0.32)}
+.s850-bullets li::after{content:"✓";position:absolute;left:3px;top:-1px;font-size:11.5px;font-weight:700;color:var(--royal)}
+.s850-bullets li strong{color:var(--royal);font-weight:700;letter-spacing:.01em}
+.mock-region{flex:1;background:#FFFFFF;color:var(--txt-dark);border-radius:12px;border:1px solid rgba(28,85,198,0.18);padding:14px;box-shadow:0 6px 18px rgba(15,30,75,0.08), 0 1px 0 rgba(255,255,255,0.60) inset;position:relative;z-index:1;overflow:hidden;min-height:225px;display:flex;flex-direction:column}
+.mock-listings{display:flex;flex-direction:column;gap:11px;flex:1}
+.mock-listings .header{display:flex;align-items:center;gap:9px}
+.mock-listings .ll-logos{display:flex;align-items:center;gap:5px;margin-left:auto}
+.mock-mini-ic{width:20px;height:20px;border-radius:5px;background:#FFFFFF;border:1px solid rgba(15,30,75,0.12);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--royal)}
+.mock-listings .biz-avatar{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg, var(--royal), var(--srp-royal-deep));color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.mock-listings .biz-info{display:flex;flex-direction:column;line-height:1.2}
+.mock-listings .biz-info .nm{font-size:12px;font-weight:700;color:var(--txt-dark)}
+.mock-listings .biz-info .st{font-size:10px;color:var(--emerald);font-weight:600;display:flex;align-items:center;gap:4px;margin-top:2px}
+.mock-listings .biz-info .st::before{content:"●";color:var(--emerald);font-size:8px}
+.mock-listings .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:11px 10px;background:#F4F8FE;border-radius:9px}
+.mock-stat{display:flex;flex-direction:column;gap:2px;text-align:center}
+.mock-stat .v{font-size:16px;font-weight:800;color:var(--txt-dark);line-height:1}
+.mock-stat .l{font-size:8.5px;color:var(--txt-dark-3);letter-spacing:.04em;text-transform:uppercase;font-weight:600;margin-top:4px}
+.mock-stat .v.emerald{color:var(--emerald)}
+.mock-stat .v.accent{color:var(--accent)}
+.mock-hours{background:#FFFFFF;border:1px solid rgba(15,30,75,0.08);border-radius:9px;padding:10px 12px;flex:1;display:flex;flex-direction:column}
+.mock-hours .h{font-size:9.5px;color:var(--txt-dark-3);letter-spacing:.06em;font-weight:700;text-transform:uppercase;margin-bottom:6px}
+.mock-hour-row{display:flex;justify-content:space-between;font-size:10px;color:var(--txt-dark-2);padding:2px 0}
+.mock-hour-row .day{font-weight:500}
+.mock-hour-row .tm{color:var(--txt-dark-3);font-variant-numeric:tabular-nums}
+.mock-analytics{display:flex;flex-direction:column;gap:11px;flex:1}
+.mock-an-top{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center}
+.donut-wrap{position:relative;width:108px;height:108px;flex-shrink:0}
+.donut-wrap svg{width:108px;height:108px;transform:rotate(-90deg)}
+.donut-wrap .pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:var(--txt-dark);letter-spacing:-.02em}
+.mock-an-right{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}
+.mock-an-right .ht{font-size:10.5px;font-weight:700;color:var(--txt-dark);letter-spacing:.04em;display:flex;align-items:center;justify-content:space-between}
+.mock-an-right .ht .ct{font-size:9.5px;color:var(--txt-dark-3);font-weight:500}
+.mock-meta-row{display:flex;align-items:center;justify-content:space-between;background:#F4F8FE;border-radius:7px;padding:5px 9px;font-size:10px;color:var(--txt-dark-2);font-weight:500}
+.mock-meta-row .badge{padding:2px 8px;border-radius:99px;font-size:8.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.mock-meta-row .badge.pending{background:#FFF4E0;color:#D97706;border:1px solid #FFE0B3}
+.mock-meta-row .badge.done{background:#DDF7E9;color:var(--emerald);border:1px solid #B6EAD0}
+.seo-attr{display:flex;flex-direction:column;gap:6px;margin-top:2px}
+.seo-attr .seo-head{font-size:9.5px;color:var(--txt-dark-3);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.seo-row{display:flex;align-items:center;gap:8px;font-size:10px}
+.seo-row .l{color:var(--txt-dark-2);font-weight:600;min-width:68px}
+.seo-row .bar{flex:1;height:5px;background:rgba(28,85,198,0.10);border-radius:99px;overflow:hidden}
+.seo-row .bar .fill{height:100%;border-radius:99px;background:linear-gradient(90deg, var(--sky-deep), var(--royal))}
+.seo-row .v{font-size:9px;color:var(--txt-dark-3);font-weight:600;min-width:30px;text-align:right}
+.mock-voce{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1}
+.step-card{background:#FFFFFF;border:1px solid rgba(15,30,75,0.10);border-radius:10px;padding:11px 13px;display:flex;flex-direction:column;gap:6px;justify-content:space-between;position:relative;transition:.2s}
+.step-card:hover{border-color:var(--royal);box-shadow:0 4px 10px rgba(28,85,198,0.12)}
+.step-card.highlight{border:1.5px solid var(--royal);background:linear-gradient(135deg, #FFFFFF 0%, #F3F7FE 100%);box-shadow:0 4px 14px rgba(28,85,198,0.20)}
+.step-card .step-tag{font-size:9px;color:var(--txt-dark-3);font-weight:700;letter-spacing:.10em;text-transform:uppercase}
+.step-card.highlight .step-tag{color:var(--royal)}
+.step-card .step-ttl{font-size:12px;font-weight:700;color:var(--txt-dark);line-height:1.2}
+.step-btn{font-size:9.5px;font-weight:700;color:var(--royal);background:rgba(28,85,198,0.08);border:1px solid rgba(28,85,198,0.16);padding:4px 10px;border-radius:99px;align-self:flex-start;display:inline-flex;align-items:center;gap:4px}
+.step-card.highlight .step-btn{background:var(--royal);color:#fff;border-color:var(--royal)}
+
+
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- ═══════════════ SLIDE 1 — COVER ═══════════════ -->
+<section class="slide active">
+  <div class="topbar">
+    <div class="brand"><div class="dot"></div><div class="lbl">Experience.com  ·  Executive Business Review</div></div>
+    <div class="slide-num">01 / 08</div>
+  </div>
+  <div class="cover-grid">
+    <div class="cover-left">
+      <div>
+        <div class="eyebrow" style="margin-bottom:14px">A 12-month performance review</div>
+        <div class="cover-title">
+          <h1>Atlantic Bay <span class="accent">Mortgage Group</span></h1>
+          <div class="sub" style="margin-top:14px;font-size:16px">Portfolio-level review across Atlantic Bay Mortgage, Gray Fox Mortgage &amp; Mullinix Mortgage Group — June 2025 to May 2026.</div>
+        </div>
+      </div>
+      <div class="glass cover-story">
+        <div class="lbl">The Story in Three Acts</div>
+        <div class="cover-story-cols">
+          <div class="story-tile t1">
+            <div class="tag">01 · Portfolio Excellence</div>
+            <div class="num">98.44</div>
+            <div class="line">Org-wide NPS across 6,036 responses · 3 brands</div>
+          </div>
+          <div class="story-tile t2">
+            <div class="tag">02 · Risk</div>
+            <div class="num">13</div>
+            <div class="line">detractors · 0.22% of 6,036 responses</div>
+          </div>
+          <div class="story-tile t1">
+            <div class="tag">03 · Search Visibility</div>
+            <div class="num">212</div>
+            <div class="line">Avg SRS portfolio-wide · 38 pts below platform (250)</div>
+          </div>
+        </div>
+      </div>
+      <div class="cover-meta">
+        <div class="item glass">
+          <div class="l">Reporting Period</div>
+          <div class="v">Jun 2025 — May 2026</div>
+        </div>
+        <div class="item glass">
+          <div class="l">Active / Contracted</div>
+          <div class="v">212 / 200  <span style="color:var(--emerald);font-size:14px">· mid-term +12</span></div>
+        </div>
+        <div class="item glass">
+          <div class="l">Auto-Renewal Date</div>
+          <div class="v" style="color:var(--accent)">September 16, 2026</div>
+        </div>
+        <div class="item glass">
+          <div class="l">Renewal Date</div>
+          <div class="v">Nov 15, 2026</div>
+        </div>
+      </div>
+    </div>
+    <div class="cover-right">
+      <div class="cover-snapshot glass">
+        <div class="cover-snap-title">Account Snapshot</div>
+        <div class="cover-snap-grid">
+          <div class="snap-stat"><div class="v" style="color:var(--emerald)">98.44</div><div class="l">Org NPS</div></div>
+          <div class="snap-stat"><div class="v">4.95</div><div class="l">Avg Score</div></div>
+          <div class="snap-stat"><div class="v">6,036</div><div class="l">Responses</div></div>
+          <div class="snap-stat"><div class="v" style="color:var(--teal)">4.98</div><div class="l">Google Avg</div></div>
+        </div>
+      </div>
+      <div class="cover-spark glass">
+        <div class="h">
+          <div class="t">Monthly Response Volume</div>
+          <span class="chip teal">12 months</span>
+        </div>
+        <canvas id="coverSpark"></canvas>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SLIDE 2 — SCORECARD ═══════════════ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="dot"></div><div class="lbl">Performance Scorecard</div></div>
+    <div class="slide-num">02 / 08</div>
+  </div>
+  <div>
+    <div class="eyebrow">Cross-Brand Performance Scorecard</div>
+    <h2 style="margin-top:8px">3 brands · 3 narratives · 1 portfolio</h2>
+  </div>
+  <div class="s2-org-grid">
+    <!-- 3 brand comparison cards -->
+    <div class="brand-card glass brand-abm">
+      <div class="brand-head">
+        <div class="brand-tag">Flagship Brand</div>
+        <div class="brand-name">Atlantic Bay <span class="brand-sub">Mortgage</span></div>
+      </div>
+      <div class="brand-hero">
+        <div class="brand-nps">98.50<span class="suffix">NPS</span></div>
+        <span class="chip ok">Best-in-class at scale</span>
+      </div>
+      <div class="brand-metrics">
+        <div class="bm-row"><span class="bm-l">Responses</span><span class="bm-v">5,472</span></div>
+        <div class="bm-row"><span class="bm-l">Avg Score</span><span class="bm-v">4.95</span></div>
+        <div class="bm-row"><span class="bm-l">Loan Officers</span><span class="bm-v">208</span></div>
+        <div class="bm-row"><span class="bm-l">Avg SRS</span><span class="bm-v">211</span></div>
+        <div class="bm-row"><span class="bm-l">Completion</span><span class="bm-v">36.18%</span></div>
+      </div>
+      <div class="brand-foot">5,401 Promoters · 11 Detractors · 60 Passives</div>
+    </div>
+
+    <div class="brand-card glass brand-gf">
+      <div class="brand-head">
+        <div class="brand-tag">Boutique Brand</div>
+        <div class="brand-name">Gray Fox <span class="brand-sub">Mortgage</span></div>
+      </div>
+      <div class="brand-hero">
+        <div class="brand-nps">94.81<span class="suffix">NPS</span></div>
+        <span class="chip warn">Watch · 1 LO drag</span>
+      </div>
+      <div class="brand-metrics">
+        <div class="bm-row"><span class="bm-l">Responses</span><span class="bm-v">154</span></div>
+        <div class="bm-row"><span class="bm-l">Avg Score</span><span class="bm-v">4.88</span></div>
+        <div class="bm-row"><span class="bm-l">Loan Officers</span><span class="bm-v">3</span></div>
+        <div class="bm-row"><span class="bm-l">Avg SRS</span><span class="bm-v" style="color:var(--emerald)">378 ★</span></div>
+        <div class="bm-row"><span class="bm-l">Completion</span><span class="bm-v">39.49%</span></div>
+      </div>
+      <div class="brand-foot">148 Promoters · 2 Detractors · 4 Passives · Best SRS in portfolio</div>
+    </div>
+
+    <div class="brand-card glass brand-mull">
+      <div class="brand-head">
+        <div class="brand-tag">High-Performance Brand</div>
+        <div class="brand-name">Mullinix <span class="brand-sub">Mortgage Group</span></div>
+      </div>
+      <div class="brand-hero">
+        <div class="brand-nps">99.02<span class="suffix">NPS</span></div>
+        <span class="chip ok">Best NPS · 0 detractors</span>
+      </div>
+      <div class="brand-metrics">
+        <div class="bm-row"><span class="bm-l">Responses</span><span class="bm-v">410</span></div>
+        <div class="bm-row"><span class="bm-l">Avg Score</span><span class="bm-v">4.96</span></div>
+        <div class="bm-row"><span class="bm-l">Loan Officers</span><span class="bm-v">5</span></div>
+        <div class="bm-row"><span class="bm-l">Avg SRS</span><span class="bm-v">154</span></div>
+        <div class="bm-row"><span class="bm-l">Completion</span><span class="bm-v" style="color:var(--emerald)">53.74% ★</span></div>
+      </div>
+      <div class="brand-foot">406 Promoters · 0 Detractors · 4 Passives · Highest completion rate</div>
+    </div>
+
+    <!-- Portfolio rollup -->
+    <div class="portfolio-rollup glass">
+      <div class="pr-head">
+        <span class="pr-tag">Portfolio Rollup</span>
+        <span class="chip teal">Atlantic Bay Mortgage Group</span>
+      </div>
+      <div class="pr-stats">
+        <div class="pr-stat"><div class="pr-v" style="color:var(--emerald)">98.44</div><div class="pr-l">Org NPS</div></div>
+        <div class="pr-stat"><div class="pr-v">6,036</div><div class="pr-l">Total Responses</div></div>
+        <div class="pr-stat"><div class="pr-v">216</div><div class="pr-l">Loan Officers</div></div>
+        <div class="pr-stat"><div class="pr-v">5,955</div><div class="pr-l">Promoters</div></div>
+        <div class="pr-stat"><div class="pr-v" style="color:var(--accent)">13</div><div class="pr-l">Detractors · 0.22%</div></div>
+        <div class="pr-stat"><div class="pr-v">212</div><div class="pr-l">Avg SRS</div></div>
+      </div>
+    </div>
+
+    <!-- Org Google reviews -->
+    <div class="s2-google glass" style="padding:0">
+      <div class="s2-google-head" style="border-right:1px solid var(--line)">
+        <div class="t">★ External Reputation · Google Reviews</div>
+        <div class="s">Org-level Google review surface for Atlantic Bay Mortgage Group. 1 in 2 reviews replied — strong reply cadence.</div>
+        <div style="margin-top:6px"><span class="chip teal">98.5% 5-star</span> <span class="chip ok">49.4% reply rate</span></div>
+      </div>
+      <div class="s2-google-stats">
+        <div class="item"><div class="v">1,014</div><div class="l">Total Reviews</div></div>
+        <div class="item"><div class="v">4.98</div><div class="l">Avg Score</div></div>
+        <div class="item"><div class="v">999</div><div class="l">5-Star Reviews</div></div>
+        <div class="item"><div class="v">501</div><div class="l">Total Replied</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SLIDE 3 — PERFORMANCE PANORAMA ═══════════════ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="dot"></div><div class="lbl">Performance Panorama</div></div>
+    <div class="slide-num">03 / 08</div>
+  </div>
+  <div>
+    <div class="eyebrow">Four lenses on the same year</div>
+    <h2 style="margin-top:8px">Trends, comparison & customer voice</h2>
+  </div>
+  <div class="s3-grid">
+    <div class="glass">
+      <div class="q-title"><span>Period Comparison · H1 vs H2</span><span class="chip ok">Steady portfolio</span></div>
+      <div class="chart-wrap"><canvas id="periodChart"></canvas></div>
+    </div>
+    <div class="glass">
+      <div class="q-title"><span>Month-over-Month Responses</span><span class="chip ok">12 months</span></div>
+      <div class="chart-wrap"><canvas id="momChart"></canvas></div>
+    </div>
+    <div class="glass">
+      <div class="q-title"><span>Top Sentiment Themes</span><span class="chip teal">5 themes</span></div>
+      <div class="theme-list">
+        <div class="theme-row"><div class="nm">Easy / Smooth</div><div class="bar"><div class="fill" style="width:100%"></div></div><div class="cnt">2,435</div></div>
+        <div class="theme-row"><div class="nm">Helpful</div><div class="bar"><div class="fill" style="width:94.0%"></div></div><div class="cnt">2,288</div></div>
+        <div class="theme-row"><div class="nm">Communication</div><div class="bar"><div class="fill" style="width:52.7%"></div></div><div class="cnt">1,283</div></div>
+        <div class="theme-row"><div class="nm">Knowledge &amp; Expertise</div><div class="bar"><div class="fill" style="width:52.2%"></div></div><div class="cnt">1,272</div></div>
+        <div class="theme-row"><div class="nm">Recommend / Refer</div><div class="bar"><div class="fill" style="width:41.3%"></div></div><div class="cnt">1,006</div></div>
+      </div>
+    </div>
+    <div class="glass">
+      <div class="q-title"><span>Customer Voice</span><span class="chip ok">3 verbatim</span></div>
+      <div class="quote-stack">
+        <div class="quote-card">
+          <div class="t">"Meghan always responds very quickly. She made herself available around my schedule. She is knowledgeable and thorough."</div>
+          <div class="a"><strong>Atlantic Bay verbatim</strong> · Meghan Taylor</div>
+        </div>
+        <div class="quote-card">
+          <div class="t">"Tammy was quick to respond. She was patient and precise about answering all of my questions."</div>
+          <div class="a"><strong>Gray Fox verbatim</strong> · Tammy Wilt</div>
+        </div>
+        <div class="quote-card">
+          <div class="t">"No speed bumps and all questions we had were answered in timely fashion."</div>
+          <div class="a"><strong>Mullinix verbatim</strong> · Taylor Linde</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SLIDE 4 — RISK & RECS & VERDICT ═══════════════ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="dot"></div><div class="lbl">Risk · Recommendations · Verdict</div></div>
+    <div class="slide-num">04 / 08</div>
+  </div>
+  <div>
+    <div class="eyebrow" style="color:var(--emerald)">✓ Verdict</div>
+    <h2 style="margin-top:6px">Strategic posture this quarter</h2>
+  </div>
+  <div class="s4-grid">
+<div class="s4-verdict">
+      <div class="glass verdict-col verdict-protect">
+        <h3><span class="ic">✓</span>Protect the strengths</h3>
+        <div class="verdict-hero">
+          <div class="big" style="color:var(--emerald)">98.44</div>
+          <div>
+            <div class="small">Org NPS · 3 brands</div>
+            <div class="sm-detail">98.66% Promoters · 4.98 Google avg · 98.5% 5-star</div>
+          </div>
+        </div>
+        <ul>
+          <li>Lock in NPS 98.44 portfolio-wide, 4.95 avg, 98.5% Google 5-star — top quartile every metric.</li>
+          <li>Codify Will Mullinix, Tammy Stowe, Todd Jenkins playbooks — one champion per brand.</li>
+          <li>Preserve 37.08% org completion — strong post-close engagement at scale.</li>
+        </ul>
+        <div class="verdict-cta">
+          <div class="l">Posture this quarter</div>
+          <div class="r" style="color:var(--emerald)">Hold the line · Document the playbook</div>
+        </div>
+      </div>
+      <div class="glass verdict-col verdict-close">
+        <h3><span class="ic">!</span>Close the gaps</h3>
+        <div class="verdict-hero">
+          <div class="big" style="color:var(--accent)">13</div>
+          <div>
+            <div class="small">Org Detractors / 6,036 responses</div>
+            <div class="sm-detail">0.22% rate · themes: rate-lock, title-co · 11 ABM + 2 GF</div>
+          </div>
+        </div>
+        <ul>
+          <li>Capture John Pyne external playbook (SRS 565, ABM) — strongest visibility portfolio-wide.</li>
+          <li>Build rate-lock + title-co handoff SOP — plain-language milestone confirmations.</li>
+          <li>4-LO coaching pod: Matt Hodges, Morgan Wise, Aaron Blackmon, Julie Smallwood with top performers.</li>
+        </ul>
+        <div class="verdict-cta">
+          <div class="l">Focus this quarter</div>
+          <div class="r" style="color:var(--accent)">Coaching cycle · 3 LOs · Q3</div>
+        </div>
+      </div>
+    </div>
+    <div class="glass s4-timeline">
+      <div class="s4-tl-head">
+        <span class="s4-tl-eyebrow"><span class="arr">→</span>Action Timeline</span>
+        <span class="s4-tl-title">Next 90 Days · Execution Plan</span>
+      </div>
+      <div class="s4-tl-grid">
+        <div class="s4-tl-col">
+          <div class="s4-tl-when"><span class="dot"></span>This Week</div>
+          <ul>
+            <li>Align CS + sponsor on quarterly focus</li>
+            <li>Schedule coaching pod kickoff</li>
+            <li>Baseline current NPS + SRS</li>
+          </ul>
+        </div>
+        <div class="s4-tl-col">
+          <div class="s4-tl-when"><span class="dot"></span>Next 30 Days</div>
+          <ul>
+            <li>Launch profile-completion sprint</li>
+            <li>Begin call-shadow with top performers</li>
+            <li>Daily check-ins · bottom-3 LOs</li>
+          </ul>
+        </div>
+        <div class="s4-tl-col">
+          <div class="s4-tl-when"><span class="dot"></span>Next 90 Days</div>
+          <ul>
+            <li>Measure NPS + SRS lift</li>
+            <li>Document playbook from top 3 LOs</li>
+            <li>Mid-quarter check-in with sponsor</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SLIDE 5 — TEAM RANKING ═══════════════ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="dot"></div><div class="lbl">Team Performance</div></div>
+    <div class="slide-num">05 / 08</div>
+  </div>
+  <div>
+    <div class="eyebrow">Loan Officer Leaderboard</div>
+    <h2 style="margin-top:6px">Who to celebrate &amp; who to coach</h2>
+  </div>
+  <div class="s5-grid">
+    <div class="s5-tables">
+      <div class="glass lb-card top">
+        <div class="head"><div class="t">★ Org Top 3 · One Champion per Brand</div><span class="chip ok">NPS 98-100</span></div>
+        <div class="lb-table">
+          <table>
+            <thead><tr><th>Rank</th><th>Loan Officer</th><th>Branch</th><th style="text-align:right">Responses</th><th style="text-align:right">NPS</th><th style="text-align:right">SRS</th></tr></thead>
+            <tbody>
+              <tr><td><span class="rank-badge rank-ok">1</span></td><td><strong>Will Mullinix</strong></td><td>Mullinix · MMG Charlotte</td><td style="text-align:right">290</td><td style="text-align:right;color:var(--emerald);font-weight:600">99.66</td><td style="text-align:right">287</td></tr>
+              <tr><td><span class="rank-badge rank-ok">2</span></td><td><strong>Tammy Stowe</strong></td><td>Atlantic Bay · Mooresville</td><td style="text-align:right">89</td><td style="text-align:right;color:var(--emerald);font-weight:600">100.00</td><td style="text-align:right">396</td></tr>
+              <tr><td><span class="rank-badge rank-ok">3</span></td><td><strong>Todd Jenkins</strong></td><td>Gray Fox · Charlottesville</td><td style="text-align:right">52</td><td style="text-align:right;color:var(--emerald);font-weight:600">98.08</td><td style="text-align:right">553</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="glass lb-card bot">
+        <div class="head"><div class="t">⚠ Org Bottom 3 · One per Brand</div><span class="chip warn">Cross-brand coaching pod</span></div>
+        <div class="lb-table">
+          <table>
+            <thead><tr><th>Rank</th><th>Loan Officer</th><th>Branch</th><th style="text-align:right">Responses</th><th style="text-align:right">NPS</th><th style="text-align:right">SRS</th></tr></thead>
+            <tbody>
+              <tr><td><span class="rank-badge rank-warn">1</span></td><td><strong>Matt Hodges</strong></td><td>Gray Fox · Charlottesville</td><td style="text-align:right">43</td><td style="text-align:right;color:var(--accent);font-weight:600">88.37</td><td style="text-align:right">179</td></tr>
+              <tr><td><span class="rank-badge rank-warn">2</span></td><td><strong>Aaron Blackmon</strong></td><td>Atlantic Bay · Augusta</td><td style="text-align:right">20</td><td style="text-align:right;color:var(--accent);font-weight:600">90.00</td><td style="text-align:right">389</td></tr>
+              <tr><td><span class="rank-badge rank-warn">3</span></td><td><strong>Morgan Wise</strong></td><td>Mullinix · MMG Charlotte</td><td style="text-align:right">40</td><td style="text-align:right;color:var(--accent);font-weight:600">92.50</td><td style="text-align:right">156</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="glass s5-coaching">
+      <div class="head"><div class="t">Search Rank Score Spotlight</div><span class="chip ok">SRS · /850</span></div>
+      <div class="srs-section">
+        <div class="srs-label top"><span>★ Top 3 SRS Champions</span><span class="bench">Platform avg · 250</span></div>
+        <div class="srs-row top">
+          <span class="rank-badge rank-ok">1</span>
+          <div class="srs-nm"><div class="nm">John Pyne</div><div class="meta">Atlantic Bay · McLean, VA</div></div>
+          <div class="srs-val">565</div>
+        </div>
+        <div class="srs-row top">
+          <span class="rank-badge rank-ok">2</span>
+          <div class="srs-nm"><div class="nm">Tony Garshnick</div><div class="meta">Atlantic Bay · Waxhaw, NC</div></div>
+          <div class="srs-val">562</div>
+        </div>
+        <div class="srs-row top">
+          <span class="rank-badge rank-ok">3</span>
+          <div class="srs-nm"><div class="nm">Todd Jenkins</div><div class="meta">Gray Fox · Charlottesville, VA</div></div>
+          <div class="srs-val">553</div>
+        </div>
+      </div>
+      <div class="srs-section">
+        <div class="srs-label bot"><span>⚠ Bottom 3 SRS Opportunity</span><span class="bench">Coachable · &lt;100</span></div>
+        <div class="srs-row bot">
+          <span class="rank-badge rank-warn">1</span>
+          <div class="srs-nm"><div class="nm">Laura Lender</div><div class="meta">Atlantic Bay · Virginia Beach, VA</div></div>
+          <div class="srs-val">57</div>
+        </div>
+        <div class="srs-row bot">
+          <span class="rank-badge rank-warn">2</span>
+          <div class="srs-nm"><div class="nm">Austin Smith</div><div class="meta">Atlantic Bay · Chapin, SC</div></div>
+          <div class="srs-val">62</div>
+        </div>
+        <div class="srs-row bot">
+          <span class="rank-badge rank-warn">3</span>
+          <div class="srs-nm"><div class="nm">Joshua Hedspeth</div><div class="meta">Atlantic Bay · Charlotte, NC</div></div>
+          <div class="srs-val">62</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SLIDE 6 — RENEWAL ═══════════════ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="dot"></div><div class="lbl">Renewal Information</div></div>
+    <div class="slide-num">06 / 08</div>
+  </div>
+  <div>
+    <div class="eyebrow" style="color:var(--accent)">✓ Org-Level Renewal Track · Auto-Renewal September 16, 2026</div>
+    <h2 style="margin-top:6px">Contract status &amp; renewal timeline</h2>
+  </div>
+  <div class="s6-grid">
+    <div class="s6-stats">
+      <div class="glass adopt-card">
+        <div class="adopt-gauge">
+          <canvas id="adoptGauge"></canvas>
+          <div class="v" style="color:var(--emerald)">106%</div>
+        </div>
+        <div class="adopt-info">
+          <div class="l">Org Seat Utilization</div>
+          <div class="v" style="color:var(--emerald)">212 / 200</div>
+          <div class="c">Mid-term expansion · +12 seats</div>
+        </div>
+      </div>
+      <div class="glass" style="padding:18px 22px;display:flex;flex-direction:column;justify-content:center">
+        <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-3);font-weight:600">Org Contracted Seats</div>
+        <div style="font-size:32px;font-weight:700;margin-top:6px;letter-spacing:-.01em">200</div>
+        <div style="font-size:12px;color:var(--txt-2);margin-top:6px">Atlantic Bay Mortgage Group</div>
+      </div>
+      <div class="glass" style="padding:18px 22px;display:flex;flex-direction:column;justify-content:center">
+        <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-3);font-weight:600">Org Active Users</div>
+        <div style="font-size:32px;font-weight:700;margin-top:6px;letter-spacing:-.01em;color:var(--teal)">212</div>
+        <div style="font-size:12px;color:var(--txt-2);margin-top:6px">208 ABM + 3 GF + 5 Mullinix</div>
+      </div>
+      <div class="glass" style="padding:18px 22px;display:flex;flex-direction:column;justify-content:center">
+        <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-3);font-weight:600">Mid-Term Expansion</div>
+        <div style="font-size:32px;font-weight:700;margin-top:6px;letter-spacing:-.01em;color:var(--accent)">+12</div>
+        <div style="font-size:12px;color:var(--txt-2);margin-top:6px">Seats added above contract</div>
+      </div>
+    </div>
+    <div class="glass timeline">
+      <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--txt-2);font-weight:600;margin-bottom:24px">Your Contract Timeline</div>
+      <div class="tl-row">
+        <div class="tl-node now">
+          <div class="dot">●</div>
+          <div class="lbl">Today</div>
+          <div class="date">Jun 2026</div>
+          <div class="sub">EBR window</div>
+        </div>
+        <div class="tl-node urgent">
+          <div class="dot">!</div>
+          <div class="lbl">Org Auto-Renewal</div>
+          <div class="date">September 16, 2026</div>
+          <div class="sub">Discuss expansion to true-up</div>
+        </div>
+        <div class="tl-node future">
+          <div class="dot">▶</div>
+          <div class="lbl">Term Start</div>
+          <div class="date">Nov 15, 2026</div>
+          <div class="sub">New contract year</div>
+        </div>
+      </div>
+    </div>
+    <div class="s6-bottom">
+      <div class="notice-card">
+        <div class="head">
+          <div class="ic">!</div>
+          <div>
+            <div class="t">Renewal Notice · Comfortable Window</div>
+            <div style="font-size:18px;font-weight:700;margin-top:4px">Org Auto-Renewal · September 16, 2026</div>
+          </div>
+        </div>
+        <div class="body">Atlantic Bay Mortgage Group org-level contract auto-renews on September 16, 2026 (term starts November 15, 2026), covering Atlantic Bay Mortgage, Gray Fox Mortgage, and Mullinix Mortgage Group.</div>
+        <div class="gap">212 active LOs on a 200-seat contract — running 12 seats above plan (mid-term expansion). Strong renewal posture — schedule alignment call before Sep 16 to true-up seat count and discuss expansion to 250+ seats.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+<!-- ═══════════════ SLIDE 7 — SRP550 (Foundation) ═══════════════ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="dot"></div><div class="lbl">Current Package · Foundation</div></div>
+    <div class="slide-num">07 / 08</div>
+  </div>
+
+  <div class="s550-grid">
+
+    <div class="s550-hero">
+      <div class="hero-top">
+        <span class="pkg-badge"><span class="ic">★</span>Package</span>
+        <div class="s550-title">SRP550</div>
+        <div class="s550-sub">Build Trust and Grow Your Reputation</div>
+        <div class="s550-desc">Capture, manage, and showcase customer feedback to strengthen your brand, increase referrals, and drive more business.</div>
+      </div>
+      <div class="s550-divider"></div>
+      <div class="s550-bens-h">Key Benefits</div>
+      <ul class="s550-bens">
+        <li><span class="check">✓</span>Generate more reviews and customer feedback</li>
+        <li><span class="check">✓</span>Build credibility and social proof</li>
+        <li><span class="check">✓</span>Increase referral opportunities</li>
+        <li><span class="check">✓</span>Strengthen reputation across channels</li>
+        <li><span class="check">✓</span>Measure customer experience at scale</li>
+      </ul>
+    </div>
+
+    <div class="s550-caps-wrap">
+      <div class="s550-caps-head">
+        <div class="eyebrow">Core Capabilities</div>
+        <h2>Everything you need to win with reviews</h2>
+      </div>
+
+      <div class="s550-caps">
+
+        <div class="cap-tile">
+          <div class="cap-default">
+            <div class="cap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+            <div class="cap-ttl">Automated Survey &amp; Review Campaigns</div>
+          </div>
+          <ul class="cap-points">
+            <li>Trigger at the right post-close moment</li>
+            <li>Multi-channel send — email, SMS, web</li>
+            <li>Branded templates matching your voice</li>
+          </ul>
+        </div>
+
+        <div class="cap-tile">
+          <div class="cap-default">
+            <div class="cap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 8.5 22 9.3 17 14 18.2 21 12 17.8 5.8 21 7 14 2 9.3 9 8.5"/></svg></div>
+            <div class="cap-ttl">Review Management &amp; Response Tools</div>
+          </div>
+          <ul class="cap-points">
+            <li>Reply to all reviews from one inbox</li>
+            <li>AI-suggested response drafts</li>
+            <li>Sentiment tracking across platforms</li>
+          </ul>
+        </div>
+
+        <div class="cap-tile">
+          <div class="cap-default">
+            <div class="cap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <div class="cap-ttl">Individual User &amp; Location Profiles</div>
+          </div>
+          <ul class="cap-points">
+            <li>Per-LO branded public pages</li>
+            <li>SEO-optimized for local search</li>
+            <li>Embed reviews + contact</li>
+          </ul>
+        </div>
+
+        <div class="cap-tile">
+          <div class="cap-default">
+            <div class="cap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+            <div class="cap-ttl">Dashboards &amp; Performance Reporting</div>
+          </div>
+          <ul class="cap-points">
+            <li>NPS, CSAT, response-volume trends</li>
+            <li>Manager + LO-level drilldowns</li>
+            <li>Export-ready for QBR / EBR</li>
+          </ul>
+        </div>
+
+        <div class="cap-tile">
+          <div class="cap-default">
+            <div class="cap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
+            <div class="cap-ttl">Automated Social Media Publishing</div>
+          </div>
+          <ul class="cap-points">
+            <li>Auto-post 5-star reviews to socials</li>
+            <li>Schedule FB, LinkedIn, X</li>
+            <li>Authenticated brand voice</li>
+          </ul>
+        </div>
+
+        <div class="cap-tile">
+          <div class="cap-default">
+            <div class="cap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></div>
+            <div class="cap-ttl">Referral Center</div>
+          </div>
+          <ul class="cap-points">
+            <li>Track referrals — request to close</li>
+            <li>Send/receive from trusted partners</li>
+            <li>High-converting templates</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="s550-visual">
+        <div class="rev-card">
+          <div class="head"><div class="t">Reviews</div><div class="pb">Powered by experience.com</div></div>
+          <div class="top-row">
+            <div class="rating"><div class="v">5.0</div><div class="stars">★★★★★</div><div class="l">Ratings</div></div>
+            <div class="total"><div class="v">177,45</div><div class="l">Total Reviews</div></div>
+          </div>
+          <div class="rev-bars">
+            <div class="rev-bar"><span class="star">5★</span><div class="bar"><div class="fill" style="width:88%"></div></div><span class="pct">88.04%</span></div>
+            <div class="rev-bar"><span class="star">4★</span><div class="bar"><div class="fill" style="width:40%"></div></div><span class="pct">40.56%</span></div>
+            <div class="rev-bar"><span class="star">3★</span><div class="bar"><div class="fill" style="width:36%"></div></div><span class="pct">36.78%</span></div>
+            <div class="rev-bar"><span class="star">2★</span><div class="bar"><div class="fill" style="width:11%"></div></div><span class="pct">11.71%</span></div>
+            <div class="rev-bar"><span class="star">1★</span><div class="bar"><div class="fill" style="width:1%"></div></div><span class="pct">0.91%</span></div>
+          </div>
+        </div>
+        <div class="social-cluster">
+          <div class="ic-row">
+            <div class="social-ic" style="background:#0A66C2;color:#fff"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3v9zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66V19z"/></svg></div>
+            <div class="social-ic" style="background:linear-gradient(45deg, #F58529, #DD2A7B, #8134AF);color:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1" fill="currentColor"/></svg></div>
+            <div class="social-ic" style="background:#000;color:#fff"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.53 2H20.6l-6.71 7.66L21.78 22h-6.16l-4.83-6.3L5.3 22H2.23l7.18-8.2L2 2h6.31l4.36 5.77zm-1.08 18.04h1.71L7.62 3.86H5.79z"/></svg></div>
+            <div class="social-ic" style="background:#fff"><svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.5 12.27c0-.79-.07-1.54-.2-2.27H12v4.51h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.22-4.74 3.22-8.32z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.99.66-2.25 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0012 23z"/><path fill="#FBBC05" d="M5.84 14.1A6.6 6.6 0 015.5 12c0-.73.13-1.44.34-2.1V7.06H2.18A11 11 0 001 12c0 1.77.42 3.45 1.18 4.94l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 002.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg></div>
+            <div class="social-ic" style="background:#1877F2;color:#fff"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg></div>
+          </div>
+          <div class="lbl-row">We're a <strong>distributed team</strong><br/>with offices worldwide</div>
+        </div>
+        <div class="post-card">
+          <div class="post-head"><div class="post-fb">f</div><div class="post-co"><div class="nm">ABC Company</div><div class="tm">2h</div></div></div>
+          <div class="post-body">5.0 ★ review received on Experience.com from a delighted customer! 🎉 Heartwarming to see our efforts paying off…</div>
+          <div class="post-review">
+            <div class="post-avatar">AA</div>
+            <div class="post-reviewer"><div class="nm">Adam Alsop · ABC Company</div><div class="co">Adam was outstanding! Knowledgeable, efficient — highly recommend!</div></div>
+          </div>
+          <div class="post-foot"><div class="lk">88</div><div>12 Shares</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════ SLIDE 8 — SRP850 (Premium Upgrade) ═══════════════ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="dot" style="background:var(--srp-gold);box-shadow:0 0 16px var(--srp-gold)"></div><div class="lbl">Premium Upgrade · SRP850</div></div>
+    <div class="slide-num">08 / 08</div>
+  </div>
+
+  <div class="s850-head">
+    <span class="pkg-badge"><span class="ic">★</span>Premium Package</span>
+    <span class="s850-plus"><span class="check">✓</span>Everything in SRP550, plus:</span>
+    <div class="s850-title">SRP850</div>
+    <div class="s850-sub">Dominate <span class="accent-blue">Local Search</span> and <span class="accent-blue">AI Discovery</span></div>
+  </div>
+
+  <div class="s850-cards">
+
+    <div class="s850-card">
+      <div class="card-head">
+        <div class="s850-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <div class="card-num">01</div>
+      </div>
+      <div class="ttl">Listings Management</div>
+      <ul class="s850-bullets">
+        <li>Bulk updates across <strong>60+ directories</strong></li>
+        <li><strong>Google Suite</strong> — native Business Profile control</li>
+        <li>Authority &amp; backlink signals to Google + AI</li>
+      </ul>
+      <div class="mock-region mock-listings">
+        <div class="header">
+          <div class="biz-avatar">A</div>
+          <div class="biz-info"><div class="nm">ABC Mortgage Company</div><div class="st">Active · ID 10340</div></div>
+          <div class="ll-logos">
+            <div class="mock-mini-ic">G</div>
+            <div class="mock-mini-ic" style="color:#F25022">B</div>
+            <div class="mock-mini-ic" style="color:#1877F2">f</div>
+            <div class="mock-mini-ic" style="color:#E1003C">R</div>
+          </div>
+        </div>
+        <div class="stats-row">
+          <div class="mock-stat"><div class="v">6</div><div class="l">Users</div></div>
+          <div class="mock-stat"><div class="v accent">2</div><div class="l">Issues</div></div>
+          <div class="mock-stat"><div class="v">4</div><div class="l">Published</div></div>
+          <div class="mock-stat"><div class="v emerald">83.33%</div><div class="l">Complete</div></div>
+        </div>
+        <div class="mock-hours">
+          <div class="h">Business Hours</div>
+          <div class="mock-hour-row"><span class="day">Mon</span><span class="tm">8:00 AM – 8:00 PM</span></div>
+          <div class="mock-hour-row"><span class="day">Tue</span><span class="tm">8:00 AM – 8:00 PM</span></div>
+          <div class="mock-hour-row"><span class="day">Wed</span><span class="tm">8:00 AM – 8:00 PM</span></div>
+          <div class="mock-hour-row"><span class="day">Thu</span><span class="tm">8:00 AM – 8:00 PM</span></div>
+          <div class="mock-hour-row"><span class="day">Fri</span><span class="tm">8:00 AM – 6:00 PM</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="s850-card">
+      <div class="card-head">
+        <div class="s850-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><path d="M7 11h8M11 7v8" stroke-width="1.6"/></svg></div>
+        <div class="card-num">02</div>
+      </div>
+      <div class="ttl">Web Analytics</div>
+      <ul class="s850-bullets">
+        <li><strong>Structured data</strong> &amp; schema markup checks</li>
+        <li>Page-speed &amp; technical health metrics</li>
+        <li>AI readiness &amp; SEO recommendations</li>
+      </ul>
+      <div class="mock-region mock-analytics">
+        <div class="mock-an-top">
+          <div class="donut-wrap">
+            <svg viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(91,175,255,0.18)" stroke-width="4"/>
+              <circle cx="18" cy="18" r="14" fill="none" stroke="url(#donutg)" stroke-width="4" stroke-dasharray="52.7 87.96" stroke-linecap="round"/>
+              <defs><linearGradient id="donutg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#5BAFFF"/><stop offset="100%" stop-color="#1c55c6"/></linearGradient></defs>
+            </svg>
+            <div class="pct">60%</div>
+          </div>
+          <div class="mock-an-right">
+            <div class="ht"><span>HTML Data</span><span class="ct">1 / 8</span></div>
+            <div class="mock-meta-row"><span>Meta description</span><span class="badge pending">Pending</span></div>
+            <div class="mock-meta-row"><span>Robots meta tag</span><span class="badge pending">Pending</span></div>
+            <div class="mock-meta-row"><span>Charset</span><span class="badge done">✓ Done</span></div>
+          </div>
+        </div>
+        <div class="seo-attr">
+          <div class="seo-head">SEO Attributes</div>
+          <div class="seo-row"><span class="l">NAP Data</span><div class="bar"><div class="fill" style="width:20%"></div></div><span class="v">20%</span></div>
+          <div class="seo-row"><span class="l">Profile</span><div class="bar"><div class="fill" style="width:55%"></div></div><span class="v">55%</span></div>
+          <div class="seo-row"><span class="l">Reviews</span><div class="bar"><div class="fill" style="width:78%"></div></div><span class="v">78%</span></div>
+          <div class="seo-row"><span class="l">Backlinks</span><div class="bar"><div class="fill" style="width:42%"></div></div><span class="v">42%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="s850-card">
+      <div class="card-head">
+        <div class="s850-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L13.5 8.5L19 10L13.5 11.5L12 17L10.5 11.5L5 10L10.5 8.5z" fill="currentColor" fill-opacity="0.3"/><path d="M12 3L13.5 8.5L19 10L13.5 11.5L12 17L10.5 11.5L5 10L10.5 8.5z"/><path d="M19 17l.7 2L22 19.7l-2.3.7L19 22.7l-.7-2L16 19.7l2.3-.7z" fill="currentColor" fill-opacity="0.6"/><path d="M5 5l.5 1.5L7 7l-1.5.5L5 9l-.5-1.5L3 7l1.5-.5z" fill="currentColor" fill-opacity="0.6"/></svg></div>
+        <div class="card-num">03</div>
+      </div>
+      <div class="ttl">VOCE AI Content Agent</div>
+      <ul class="s850-bullets">
+        <li><strong>AI-guided</strong> research &amp; writing</li>
+        <li>Auto-formatted for AI readability</li>
+        <li>SEO &amp; metadata optimization</li>
+      </ul>
+      <div class="mock-region mock-voce">
+        <div class="step-card"><div class="step-tag">Step 1</div><div class="step-ttl">Create Your First Article</div><div class="step-btn">Start Writing →</div></div>
+        <div class="step-card highlight"><div class="step-tag">Step 2 · Recommended</div><div class="step-ttl">Use AI Writer</div><div class="step-btn">Try AI Writer →</div></div>
+        <div class="step-card"><div class="step-tag">Step 3</div><div class="step-ttl">Publish &amp; Share</div><div class="step-btn">View Dashboard →</div></div>
+        <div class="step-card"><div class="step-tag">Step 4</div><div class="step-ttl">Track Your Growth</div><div class="step-btn">See Analytics →</div></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+
+</div>
+
+<div class="dots" id="dots"></div>
+<div class="nav">
+  <button id="prev" title="Previous (←)">‹</button>
+  <button id="next" title="Next (→)">›</button>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const dots = document.getElementById('dots');
+let i = 0;
+slides.forEach((_,k)=>{const s=document.createElement('span');if(k===0)s.classList.add('on');s.addEventListener('click',()=>go(k));dots.appendChild(s)});
+function go(n){
+  i = Math.max(0, Math.min(slides.length-1, n));
+  slides.forEach((s,k)=>s.classList.toggle('active', k===i));
+  dots.querySelectorAll('span').forEach((d,k)=>d.classList.toggle('on', k===i));
+}
+document.getElementById('next').onclick = ()=>go(i+1);
+document.getElementById('prev').onclick = ()=>go(i-1);
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight'||e.key===' ') go(i+1);
+  if(e.key==='ArrowLeft') go(i-1);
+});
+
+// Common chart options
+Chart.defaults.color = '#94A3B8';
+Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
+Chart.defaults.font.size = 11;
+
+const monthly = [428,455,493,440,473,477,414,346,416,527,523,559];
+const labels = ['Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May'];
+
+// Cover sparkline — line chart (sky blue)
+new Chart(document.getElementById('coverSpark'), {
+  type:'line',
+  data:{labels, datasets:[{
+    data: monthly, borderColor:'#5BAFFF', backgroundColor:'rgba(91,175,255,0.20)',
+    fill:true, tension:0.4, pointRadius:0, borderWidth:2.5
+  }]},
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{
+      backgroundColor:'rgba(10,27,63,0.95)', borderColor:'rgba(255,255,255,0.12)', borderWidth:1, padding:10,
+      callbacks:{label:c=>` ${c.parsed.y} responses`}
+    }},
+    scales:{
+      x:{grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#7E92B8',font:{size:9}}},
+      y:{display:false}
+    }
+  }
+});
+
+// KPI Sparklines (mini)
+function makeSpark(id, data, color){
+  new Chart(document.getElementById(id), {
+    type:'line',
+    data:{labels:data.map((_,i)=>i), datasets:[{data, borderColor:color, backgroundColor:'transparent', fill:false, tension:0.4, pointRadius:0, borderWidth:2}]},
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{enabled:false}}, scales:{x:{display:false},y:{display:false}}}
+  });
+}
+// Slide 2 sparklines removed — replaced with brand scorecard
+// kpiSpark2 removed
+// kpiSpark3 removed
+// kpiSpark4 removed
+
+// Slide 3 — Period chart (grouped)
+new Chart(document.getElementById('periodChart'), {
+  type:'bar',
+  data:{
+    labels:['Responses','"Great" Rate %','Detractor Count','Avg × 20'],
+    datasets:[
+      {label:'H1', data:[2766, 98.6, 7, 99.0], backgroundColor:'rgba(91,175,255,0.85)', borderRadius:6, barPercentage:0.7, categoryPercentage:0.7},
+      {label:'H2', data:[2785, 98.7, 6, 99.0], backgroundColor:'rgba(28,85,198,0.85)', borderRadius:6, barPercentage:0.7, categoryPercentage:0.7}
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{position:'bottom', labels:{color:'#94A3B8', boxWidth:12, padding:10, font:{size:11}}},
+      tooltip:{backgroundColor:'rgba(10,20,38,0.96)', borderColor:'rgba(255,255,255,0.1)', borderWidth:1, padding:10}
+    },
+    scales:{
+      x:{grid:{display:false}, ticks:{color:'#94A3B8', font:{size:10}}},
+      y:{grid:{color:'rgba(255,255,255,0.05)'}, ticks:{color:'#64748B'}, beginAtZero:true, type:'logarithmic'}
+    }
+  }
+});
+
+// Slide 3 — MoM chart (sky blue — non-critical volume data)
+new Chart(document.getElementById('momChart'), {
+  type:'bar',
+  data:{labels, datasets:[{
+    data:monthly, backgroundColor:'rgba(91,175,255,0.85)', borderRadius:5, hoverBackgroundColor:'#3B97F0'
+  }]},
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{backgroundColor:'rgba(10,20,38,0.96)', borderColor:'rgba(255,255,255,0.1)', borderWidth:1, padding:10}},
+    scales:{
+      x:{grid:{display:false}, ticks:{color:'#94A3B8'}},
+      y:{grid:{color:'rgba(255,255,255,0.05)'}, ticks:{color:'#64748B'}, beginAtZero:true}
+    }
+  }
+});
+
+// Slide 6 — Adoption gauge
+new Chart(document.getElementById('adoptGauge'), {
+  type:'doughnut',
+  data:{
+    datasets:[{
+      data:[106, 0],
+      backgroundColor:['#10B981', 'rgba(255,255,255,0.10)'],
+      borderWidth:0, circumference:360, cutout:'72%'
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{enabled:false}}
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fay Servicing — EBR Summary One-Pager</title>
+<style>
+  @page{size:A4 portrait;margin:0}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+  :root{
+    --bg-0:#F8FBFE; --bg-1:#EEF3FA; --bg-2:#E1EAF5;
+    --card:#1A2D5C; --card-hi:#233A75; --card-warm:#142348;
+    --card-border:rgba(255,255,255,0.16);
+    --sky:#5BAFFF; --sky-bright:#7DC3FF; --sky-deep:#3B97F0;
+    --sky-soft:rgba(91,175,255,0.18);
+    --royal:#1c55c6; --royal-bright:#3B82F6; --royal-deep:#0F3D9B;
+    --royal-soft:rgba(28,85,198,0.20);
+    --accent:#F26430; --accent-soft:rgba(242,100,48,0.20);
+    --gold:#F5C842; --gold-deep:#D4A93E;
+    --emerald:#10B981; --emerald-soft:rgba(16,185,129,0.20);
+    --rose:#E11D48; --rose-soft:rgba(225,29,72,0.18);
+
+    --txt:#F2F5FF; --txt-2:#CFE0F5; --txt-3:#9DB5D6;
+    --txt-dark:#0F1E40; --txt-dark-2:#334155; --txt-dark-3:#64748B;
+    --line-dark:rgba(15,30,75,0.10);
+    --line:rgba(255,255,255,0.10);
+  }
+
+  body{
+    width:210mm;min-height:297mm;
+    color:var(--txt-dark);font-family:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(ellipse 55% 35% at 8% 0%, rgba(91,175,255,0.14), transparent 70%),
+      radial-gradient(ellipse 40% 30% at 95% 5%, rgba(28,85,198,0.10), transparent 70%),
+      linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 60%, var(--bg-2) 100%);
+    padding:14mm 14mm 12mm;
+    display:flex;flex-direction:column;gap:5mm;
+  }
+
+  /* ───── HEADER ───── */
+  .pg-head{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--royal);padding-bottom:6mm}
+  .brand-stack{display:flex;flex-direction:column;gap:2mm}
+  .brand-eye{font-size:9px;letter-spacing:.20em;text-transform:uppercase;color:var(--accent);font-weight:700;display:flex;align-items:center;gap:8px}
+  .brand-eye .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  .acct-name{font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--txt-dark);line-height:1.05}
+  .acct-name .accent{background:linear-gradient(135deg, var(--royal-bright) 0%, var(--royal) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+  .meta-strip{font-size:10px;color:var(--txt-dark-2);font-weight:500;letter-spacing:.04em;margin-top:1mm}
+  .meta-strip strong{color:var(--royal);font-weight:700}
+
+  .head-right{display:flex;flex-direction:column;align-items:flex-end;gap:1.5mm}
+  .ebr-badge{padding:5px 14px;border-radius:99px;background:linear-gradient(135deg, var(--royal-bright) 0%, var(--royal) 100%);color:#fff;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;box-shadow:0 4px 12px var(--royal-soft)}
+  .ebr-date{font-size:10px;color:var(--txt-dark-3);font-weight:500;letter-spacing:.04em}
+
+  /* ───── HEADLINE BAR ───── */
+  .headline{
+    padding:5mm 7mm;border-radius:10px;
+    background:linear-gradient(165deg, var(--card-hi) 0%, var(--card) 60%, var(--card-warm) 100%);
+    color:var(--txt);box-shadow:0 6px 16px rgba(15,30,75,0.14);
+    position:relative;overflow:hidden;
+  }
+  .headline::before{content:"";position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg, transparent, var(--sky), transparent)}
+  .headline .label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--sky-bright);font-weight:700;margin-bottom:2mm}
+  .headline .copy{font-size:13px;font-weight:600;line-height:1.45;color:#fff;letter-spacing:-.005em}
+  .headline .copy strong{color:var(--gold);font-weight:700}
+
+  /* ───── KPI STRIP ───── */
+  .kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:3mm}
+  .kpi{
+    padding:4mm 4mm;border-radius:8px;
+    background:#FFFFFF;border:1px solid var(--line-dark);
+    box-shadow:0 3px 10px rgba(15,30,75,0.05);
+    display:flex;flex-direction:column;gap:1mm;text-align:left;
+    position:relative;overflow:hidden;
+  }
+  .kpi::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--royal-bright)}
+  .kpi .label{font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-dark-3);font-weight:700}
+  .kpi .value{font-size:22px;font-weight:800;color:var(--txt-dark);letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums;margin-top:1mm}
+  .kpi .value.emerald{color:var(--emerald)}
+  .kpi .value.royal{color:var(--royal)}
+  .kpi .ctx{font-size:8px;color:var(--txt-dark-3);font-weight:500;margin-top:0.5mm}
+
+  /* ───── 2-COLUMN POSTURE ───── */
+  .posture{display:grid;grid-template-columns:1fr 1fr;gap:4mm}
+  .post-card{padding:4mm 5mm;border-radius:8px;background:#FFFFFF;border:1px solid var(--line-dark);box-shadow:0 3px 10px rgba(15,30,75,0.05);display:flex;flex-direction:column;gap:2mm}
+  .post-card.protect{border-left:3px solid var(--emerald)}
+  .post-card.close{border-left:3px solid var(--accent)}
+  .post-head{display:flex;align-items:center;justify-content:space-between}
+  .post-title{display:flex;align-items:center;gap:5px}
+  .post-title .ic{width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff}
+  .post-card.protect .ic{background:var(--emerald)}
+  .post-card.close .ic{background:var(--accent)}
+  .post-title .t{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+  .post-card.protect .post-title .t{color:var(--emerald)}
+  .post-card.close .post-title .t{color:var(--accent)}
+  .post-hero{display:flex;align-items:baseline;gap:6px}
+  .post-hero .big{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+  .post-card.protect .post-hero .big{color:var(--emerald)}
+  .post-card.close .post-hero .big{color:var(--accent)}
+  .post-hero .lbl{font-size:8.5px;color:var(--txt-dark-3);letter-spacing:.10em;text-transform:uppercase;font-weight:600}
+  .post-bullets{list-style:none;display:flex;flex-direction:column;gap:1.5mm}
+  .post-bullets li{font-size:10px;color:var(--txt-dark-2);line-height:1.4;padding-left:10px;position:relative;font-weight:500}
+  .post-bullets li::before{content:"→";position:absolute;left:0;top:0;font-weight:700}
+  .post-card.protect .post-bullets li::before{color:var(--emerald)}
+  .post-card.close .post-bullets li::before{color:var(--accent)}
+
+  /* ───── ACTION TIMELINE ───── */
+  .timeline{padding:4mm 5mm;border-radius:8px;background:#FFFFFF;border:1px solid var(--line-dark);box-shadow:0 3px 10px rgba(15,30,75,0.05)}
+  .tl-head{display:flex;align-items:center;gap:6px;margin-bottom:2.5mm;padding-bottom:2mm;border-bottom:1px solid var(--line-dark)}
+  .tl-head .arr{width:14px;height:14px;border-radius:50%;background:var(--royal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700}
+  .tl-head .t{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--royal);font-weight:700}
+  .tl-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5mm}
+  .tl-col{display:flex;flex-direction:column;gap:1.5mm}
+  .tl-when{font-size:9px;letter-spacing:.10em;text-transform:uppercase;color:var(--sky-deep);font-weight:700;display:flex;align-items:center;gap:5px}
+  .tl-when .dot{width:5px;height:5px;border-radius:50%;background:var(--sky);box-shadow:0 0 5px var(--sky)}
+  .tl-col ul{list-style:none;display:flex;flex-direction:column;gap:1mm}
+  .tl-col li{font-size:9.5px;color:var(--txt-dark-2);line-height:1.35;padding-left:9px;position:relative;font-weight:500}
+  .tl-col li::before{content:"→";position:absolute;left:0;top:0;color:var(--accent);font-weight:700;font-size:9px}
+
+  /* ───── TEAM ───── */
+  .team{display:grid;grid-template-columns:1fr 1fr;gap:4mm}
+  .team-card{padding:4mm 5mm;border-radius:8px;background:#FFFFFF;border:1px solid var(--line-dark);box-shadow:0 3px 10px rgba(15,30,75,0.05)}
+  .team-card .h{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-bottom:2.5mm;padding-bottom:1.5mm;border-bottom:1px solid var(--line-dark);display:flex;align-items:center;gap:5px}
+  .team-card.top .h{color:var(--emerald)}
+  .team-card.bot .h{color:var(--accent)}
+  .team-card .h .star{font-size:11px}
+  .team-card table{width:100%;border-collapse:collapse;font-size:9.5px}
+  .team-card td{padding:1.5mm 1mm;color:var(--txt-dark-2);font-weight:500}
+  .team-card td.rank{color:var(--txt-dark-3);font-weight:700;width:6mm;font-variant-numeric:tabular-nums}
+  .team-card td.nm{color:var(--txt-dark);font-weight:600}
+  .team-card td.br{color:var(--txt-dark-3);font-size:8.5px;font-weight:500}
+  .team-card td.nps{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+  .team-card.top td.nps{color:var(--emerald)}
+  .team-card.bot td.nps{color:var(--accent)}
+  .team-card tr:not(:last-child) td{border-bottom:1px solid rgba(15,30,75,0.05)}
+
+  /* ───── RENEWAL FOOTER ───── */
+  .renewal{
+    padding:4mm 6mm;border-radius:8px;
+    background:linear-gradient(135deg, rgba(28,85,198,0.06) 0%, rgba(91,175,255,0.06) 100%);
+    border:1px solid var(--line-dark);
+    display:flex;align-items:center;justify-content:space-between;gap:6mm;
+  }
+  .renewal .label{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700;display:flex;align-items:center;gap:6px}
+  .renewal .label .ic{width:13px;height:13px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700}
+  .renewal .body{flex:1;font-size:10px;color:var(--txt-dark-2);line-height:1.45;font-weight:500}
+  .renewal .body strong{color:var(--royal);font-weight:700}
+  .renewal .date-pill{padding:3px 9px;border-radius:99px;background:var(--accent);color:#fff;font-size:9px;font-weight:700;letter-spacing:.06em;white-space:nowrap}
+
+  /* ───── PAGE FOOTER ───── */
+  .pg-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;padding-top:3mm;border-top:1px solid var(--line-dark);font-size:8.5px;color:var(--txt-dark-3);font-weight:500;letter-spacing:.04em}
+  .pg-foot .brand{color:var(--royal);font-weight:700}
+  .pg-foot .brand .x{color:var(--accent);font-style:italic}
+</style>
+</head>
+<body>
+
+  <!-- ════ HEADER ════ -->
+  <div class="pg-head">
+    <div class="brand-stack">
+      <div class="brand-eye"><span class="dot"></span>Executive Business Review · Summary</div>
+      <div class="acct-name">Fay <span class="accent">Servicing</span></div>
+      <div class="meta-strip">Reporting period: <strong>June 2025 — May 2026</strong> · 22 active users · 4 brands · SRP550 tier</div>
+    </div>
+    <div class="head-right">
+      <span class="ebr-badge">★ EBR · 2026</span>
+      <div class="ebr-date">Prepared June 17, 2026</div>
+    </div>
+  </div>
+
+  <!-- ════ HEADLINE ════ -->
+  <div class="headline">
+    <div class="label">★ The Story This Year</div>
+    <div class="copy">A strong <strong>Year-1 deployment ramping fast.</strong> NPS 89.77 across 249 responses; H1 just 4 responses → H2 222 (surveys went live in November). 21 of 22 users still in onboarding — adoption ramp is the #1 leading indicator of renewal. <strong>Avg SRS 109</strong> vs platform 250 — the biggest near-term unlock.</div>
+  </div>
+
+  <!-- ════ KPI STRIP ════ -->
+  <div class="kpi-strip">
+    <div class="kpi">
+      <div class="label">NPS</div>
+      <div class="value emerald">89.77</div>
+      <div class="ctx">93.18% Promoter rate</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Responses</div>
+      <div class="value">249</div>
+      <div class="ctx">2 campaigns · 31.05%</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Avg Score</div>
+      <div class="value">4.87</div>
+      <div class="ctx">Out of 5.00</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Google Avg</div>
+      <div class="value royal">4.67</div>
+      <div class="ctx">60 reviews · 88.3% 5★</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Avg SRS</div>
+      <div class="value" style="color:var(--accent)">109</div>
+      <div class="ctx">141 pts below 250 avg</div>
+    </div>
+  </div>
+
+  <!-- ════ STRATEGIC POSTURE ════ -->
+  <div class="posture">
+    <div class="post-card protect">
+      <div class="post-head">
+        <div class="post-title"><span class="ic">✓</span><span class="t">Protect the Strengths</span></div>
+      </div>
+      <div class="post-hero"><div class="big">89.77</div><div class="lbl">NPS Floor</div></div>
+      <ul class="post-bullets">
+        <li>Lock in NPS 89.77 — strong onboarding signal across 249 responses</li>
+        <li>Codify Michael Barlow, Charles Beachley, Jennifer Peine playbooks (NPS 100, 21–35 resp)</li>
+        <li>Preserve 31.05% completion — solid for Year-1 deployment</li>
+      </ul>
+    </div>
+
+    <div class="post-card close">
+      <div class="post-head">
+        <div class="post-title"><span class="ic">!</span><span class="t">Close the Gaps</span></div>
+      </div>
+      <div class="post-hero"><div class="big">141</div><div class="lbl">SRS pts below avg</div></div>
+      <ul class="post-bullets">
+        <li>Profile-completion sprint to lift avg SRS 109 → 200+ this quarter</li>
+        <li>Title-company coordination SOP — pre-funding checklist with closing agent</li>
+        <li>Coaching pod for Debra Torres, Lorina Archuleta, Malik Summers</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════ ACTION TIMELINE ════ -->
+  <div class="timeline">
+    <div class="tl-head"><span class="arr">→</span><span class="t">Action Timeline · Next 90 Days</span></div>
+    <div class="tl-grid">
+      <div class="tl-col">
+        <div class="tl-when"><span class="dot"></span>This Week</div>
+        <ul>
+          <li>Align CS + sponsor on quarterly focus</li>
+          <li>Schedule coaching pod kickoff</li>
+          <li>Baseline current NPS + SRS</li>
+        </ul>
+      </div>
+      <div class="tl-col">
+        <div class="tl-when"><span class="dot"></span>Next 30 Days</div>
+        <ul>
+          <li>Launch profile-completion sprint</li>
+          <li>Begin call-shadow with top performers</li>
+          <li>Daily check-ins · bottom-3 LOs</li>
+        </ul>
+      </div>
+      <div class="tl-col">
+        <div class="tl-when"><span class="dot"></span>Next 90 Days</div>
+        <ul>
+          <li>Measure NPS + SRS lift</li>
+          <li>Document playbook from top 3 LOs</li>
+          <li>Mid-quarter check-in with sponsor</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ TEAM ════ -->
+  <div class="team">
+    <div class="team-card top">
+      <div class="h"><span class="star">★</span>Top 3 Performing Loan Officers</div>
+      <table>
+        <tr><td class="rank">1</td><td class="nm">Michael Barlow</td><td class="br">Texas · 35 resp</td><td class="nps">100.00</td></tr>
+        <tr><td class="rank">2</td><td class="nm">Charles Beachley</td><td class="br">Texas · 23 resp</td><td class="nps">100.00</td></tr>
+        <tr><td class="rank">3</td><td class="nm">Jennifer Peine</td><td class="br">Tampa · 21 resp</td><td class="nps">100.00</td></tr>
+      </table>
+    </div>
+    <div class="team-card bot">
+      <div class="h"><span class="star">⚠</span>Coaching Focus · Bottom 3</div>
+      <table>
+        <tr><td class="rank">1</td><td class="nm">Malik Summers</td><td class="br">Texas · 10 resp</td><td class="nps">50.00</td></tr>
+        <tr><td class="rank">2</td><td class="nm">Lorina Archuleta</td><td class="br">Tampa · 15 resp</td><td class="nps">71.43</td></tr>
+        <tr><td class="rank">3</td><td class="nm">Debra Torres</td><td class="br">Tampa · 52 resp</td><td class="nps">81.25</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════ RENEWAL CONTEXT ════ -->
+  <div class="renewal">
+    <div class="label"><span class="ic">!</span>Renewal Window</div>
+    <div class="body"><strong>22 of 25 seats active (88% adoption)</strong> · Year-1 deployment ramping strongly. Schedule alignment call before <strong>July 1, 2026</strong> to confirm seat plan + finalize profile-completion sprint.</div>
+    <div class="date-pill">Auto-Renewal · Jul 1, 2026</div>
+  </div>
+
+  <!-- ════ FOOTER ════ -->
+  <div class="pg-foot">
+    <div>Prepared by Experience.com Customer Success · <span class="brand">e<span class="x">x</span>perience.com</span></div>
+    <div>This summary accompanies the full EBR deck · Confidential</div>
+  </div>
+
+</body>
+</html>

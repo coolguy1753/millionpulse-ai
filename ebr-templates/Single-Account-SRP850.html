@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EBR Template — Single-Account · SRP850 Template</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{
+  /* EBR PREMIUM — Navy · Sky · Light Grey (60-30-10) */
+  /* 60% Background — light grey/white with subtle cool undertone */
+  --bg-0:#F8FBFE;
+  --bg-1:#EEF3FA;
+  --bg-2:#E1EAF5;
+
+  /* 30% Cards — deep navy gradient (authority, trust) */
+  --card:#1A2D5C;
+  --card-hi:#233A75;
+  --card-warm:#142348;
+  --card-tint:#1F3568;
+  --card-border:rgba(255,255,255,0.16);
+  --card-border-hi:rgba(125,195,255,0.42);
+  --card-shine:rgba(255,255,255,0.10);
+
+  /* 10% Sky Blue — primary data accent */
+  --sky:#5BAFFF;
+  --sky-bright:#7DC3FF;
+  --sky-deep:#3B97F0;
+  --sky-soft:rgba(91,175,255,0.22);
+  --sky-glow:rgba(91,175,255,0.45);
+
+  /* Brand royal (used for emphasis ties) */
+  --royal:#1c55c6;
+  --royal-bright:#3B82F6;
+  --royal-glow:#5B8DFF;
+  --royal-soft:rgba(28,85,198,0.22);
+
+  /* Critical CTA — orange used sparingly */
+  --accent:#F26430;
+  --accent-bright:#FF7A45;
+  --accent-soft:rgba(242,100,48,0.22);
+
+  /* Status semantics */
+  --emerald:#10B981;
+  --emerald-soft:rgba(16,185,129,0.20);
+  --rose:#E11D48;
+  --rose-soft:rgba(225,29,72,0.18);
+  --gold:#D4A93E;
+  --gold-soft:rgba(212,169,62,0.22);
+
+  /* Legacy aliases (kept for charts that reference older names) */
+  --teal:var(--sky);
+  --teal-soft:var(--sky-soft);
+  --amber:#D97706;
+  --indigo:#6366F1;
+  --gold-bright:#E0B872;
+
+  /* Text — INSIDE dark navy cards (light) */
+  --txt:#F2F5FF;
+  --txt-2:#CFE0F5;
+  --txt-3:#9DB5D6;
+
+  /* Text — ON light grey/white bg (dark navy) */
+  --txt-dark:#0F1E40;
+  --txt-dark-2:#334155;
+  --txt-dark-3:#64748B;
+
+  --line:rgba(255,255,255,0.10);
+  --line-dark:rgba(15,30,75,0.10);
+
+  /* Shadows — deeper on light bg to give cards real lift */
+  --shadow:0 12px 32px rgba(15,30,75,0.16), 0 1px 0 var(--card-shine) inset, 0 0 0 1px rgba(15,30,75,0.04);
+  --shadow-hi:0 22px 60px rgba(15,30,75,0.26), 0 1px 0 rgba(255,255,255,0.18) inset, 0 0 0 1px rgba(15,30,75,0.08);
+
+  /* Aliases for legacy refs */
+  --glass:var(--card);
+  --glass-strong:var(--card-hi);
+  --glass-border:var(--card-border);
+  --glass-border-hi:var(--card-border-hi);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg-0);color:var(--txt-dark);font-family:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-feature-settings:"ss01","cv11";-webkit-font-smoothing:antialiased;height:100%;overflow:hidden}
+body{
+  background:
+    radial-gradient(ellipse 55% 55% at 10% 8%, rgba(91,175,255,0.18), transparent 60%),
+    radial-gradient(ellipse 45% 45% at 92% 5%, rgba(28,85,198,0.10), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 95%, rgba(91,175,255,0.10), transparent 65%),
+    linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 55%, var(--bg-2) 100%);
+}
+
+.deck{position:relative;width:100vw;height:100vh;overflow:hidden}
+.slide{position:absolute;inset:0;padding:32px 40px;display:none;flex-direction:column;gap:18px;animation:fade .4s cubic-bezier(.4,0,.2,1) both}
+.slide.active{display:flex}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* Top bar (every slide) */
+.topbar{display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:12px}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 16px var(--accent)}
+.brand .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--txt-dark-2);font-weight:600}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.slide-num{font-size:11px;color:var(--txt-dark-3);letter-spacing:.1em;font-variant-numeric:tabular-nums;font-weight:600}
+
+/* Headlines */
+h1{font-size:46px;font-weight:700;line-height:1.08;letter-spacing:-.02em}
+h2{font-size:30px;font-weight:600;line-height:1.15;letter-spacing:-.01em}
+h3{font-size:14px;font-weight:600;letter-spacing:.04em}
+.sub{font-size:14px;color:var(--txt-dark-2);line-height:1.55;max-width:780px}
+
+/* Premium elevated card — solid base + glossy top highlight */
+.glass{
+  background:linear-gradient(165deg, var(--card-hi) 0%, var(--card) 55%, var(--card-warm) 100%);
+  color:var(--txt);
+  border:1px solid var(--card-border);
+  border-radius:16px;
+  box-shadow:var(--shadow), 0 0 40px rgba(28,85,198,0.22);
+  padding:18px 20px;
+  transition:transform .3s cubic-bezier(.4,0,.2,1), border-color .3s ease, box-shadow .3s ease;
+  overflow:hidden;
+  position:relative;
+}
+.glass::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:48%;
+  background:linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+  border-radius:16px 16px 0 0;
+  pointer-events:none;
+}
+.glass::after{
+  content:"";position:absolute;top:0;left:14%;right:14%;height:1px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.20), transparent);
+  pointer-events:none;
+}
+.glass:hover{
+  transform:translateY(-3px);
+  border-color:var(--card-border-hi);
+  box-shadow:var(--shadow-hi), 0 0 64px rgba(28,85,198,0.38);
+}
+
+/* KPI card */
+.kpi{display:flex;flex-direction:column;justify-content:space-between;min-height:0}
+.kpi .lbl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--txt-3);font-weight:600;display:flex;align-items:center;gap:8px}
+.kpi .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.kpi .val{font-size:44px;font-weight:700;line-height:1;letter-spacing:-.02em;margin-top:6px;font-variant-numeric:tabular-nums}
+.kpi .ctx{font-size:12px;color:var(--txt-2);margin-top:6px;line-height:1.5}
+.spark-box{position:relative;height:38px;width:100%;margin-top:10px;flex-shrink:0}
+.spark-box canvas{position:absolute!important;inset:0;width:100%!important;height:100%!important}
+
+/* Chips */
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:5px 11px;border-radius:99px;border:1px solid}
+.chip.ok{color:#6EE7B7;border-color:var(--emerald-soft);background:var(--emerald-soft)}
+.chip.warn{color:#FCD34D;border-color:var(--amber-soft);background:var(--amber-soft)}
+.chip.danger{color:#FCA5A5;border-color:var(--rose-soft);background:var(--rose-soft)}
+.chip.accent{color:#FDBA74;border-color:var(--accent-soft);background:var(--accent-soft)}
+.chip.teal{color:#7DC3FF;border-color:var(--sky-soft);background:var(--sky-soft)}
+
+/* Navigation */
+.nav{position:fixed;bottom:24px;right:32px;display:flex;gap:8px;z-index:50}
+.nav button{
+  background:linear-gradient(165deg, var(--card-hi), var(--card));
+  border:1px solid var(--card-border);color:var(--txt);
+  width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:14px;
+  box-shadow:0 6px 18px rgba(15,40,100,0.20);
+  transition:.2s;display:flex;align-items:center;justify-content:center;
+}
+.nav button:hover{background:linear-gradient(165deg, var(--card-tint), var(--card-hi));border-color:var(--card-border-hi);transform:translateY(-1px)}
+.dots{position:fixed;bottom:32px;left:40px;display:flex;gap:6px;z-index:50}
+.dots span{width:6px;height:6px;border-radius:50%;background:rgba(15,40,100,0.22);cursor:pointer;transition:.2s}
+.dots span.on{background:var(--accent);width:22px;border-radius:99px;box-shadow:0 0 12px var(--accent)}
+
+/* Tables — modern */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 14px;color:var(--txt-3);font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;background:rgba(255,255,255,0.02)}
+td{padding:11px 14px;color:var(--txt);border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+tr:hover td{background:rgba(255,255,255,0.04)}
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums}
+.rank-ok{background:var(--emerald-soft);color:#6EE7B7;border:1px solid var(--emerald-soft)}
+.rank-warn{background:var(--accent-soft);color:#FDBA74;border:1px solid var(--accent-soft)}
+
+/* Cover Slide 1 */
+.cover-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;flex:1;min-height:0}
+.cover-left{display:grid;grid-template-rows:auto 1fr auto;gap:20px;align-content:stretch}
+.cover-title h1 .accent{background:linear-gradient(135deg, var(--royal) 0%, var(--sky) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.cover-story{padding:20px 24px;display:flex;flex-direction:column;gap:24px;justify-content:center}
+.cover-story .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--txt-3);font-weight:600;display:flex;align-items:center;justify-content:space-between}
+.cover-story .lbl::after{content:"";flex:1;height:1px;background:var(--line);margin-left:14px}
+.cover-story-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.story-tile{padding:16px 18px;border-radius:14px;background:rgba(8,16,34,0.55);border:1px solid var(--card-border);box-shadow:0 1px 0 rgba(255,255,255,0.04) inset, 0 6px 18px rgba(5,12,30,0.30);display:flex;flex-direction:column;gap:10px;justify-content:space-between;transition:.3s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;min-height:170px}
+.story-tile::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;border-radius:14px 14px 0 0}
+.story-tile.t1::before{background:linear-gradient(90deg, transparent, var(--emerald), transparent)}
+.story-tile.t1{box-shadow:0 1px 0 rgba(255,255,255,0.04) inset, 0 6px 18px rgba(5,12,30,0.30), 0 0 28px rgba(16,185,129,0.32)}
+.story-tile.t2::before{background:linear-gradient(90deg, transparent, var(--royal-bright), transparent)}
+.story-tile.t2{box-shadow:0 1px 0 rgba(255,255,255,0.04) inset, 0 6px 18px rgba(5,12,30,0.30), 0 0 28px rgba(28,85,198,0.36)}
+.story-tile.t3::before{background:linear-gradient(90deg, transparent, var(--accent), transparent)}
+.story-tile.t3{box-shadow:0 1px 0 rgba(255,255,255,0.04) inset, 0 6px 18px rgba(5,12,30,0.30), 0 0 28px rgba(242,100,48,0.36)}
+.story-tile:hover{background:rgba(12,22,46,0.65);transform:translateY(-3px);border-color:var(--card-border-hi);box-shadow:0 1px 0 rgba(255,255,255,0.08) inset, 0 12px 32px rgba(5,12,30,0.50)}
+.story-tile .tag{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+.story-tile.t1 .tag{color:var(--emerald)}
+.story-tile.t2 .tag{color:var(--royal-bright)}
+.story-tile.t3 .tag{color:var(--accent)}
+.story-tile .num{font-size:40px;font-weight:700;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+.story-tile.t1 .num{color:var(--emerald)}
+.story-tile.t2 .num{color:var(--royal-bright)}
+.story-tile.t3 .num{color:var(--accent)}
+.story-tile .line{font-size:11px;color:var(--txt-2);line-height:1.45}
+.cover-meta{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cover-meta .item{padding:14px 16px}
+.cover-meta .item .l{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-3);font-weight:600}
+.cover-meta .item .v{font-size:20px;font-weight:600;margin-top:6px;letter-spacing:-.01em}
+.cover-right{display:grid;grid-template-rows:auto 1fr;gap:14px;min-height:0}
+.cover-snapshot{padding:18px 20px}
+.cover-snap-title{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-3);font-weight:600;margin-bottom:14px}
+.cover-snap-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.snap-stat{padding:12px 14px;border-radius:12px;background:rgba(8,16,34,0.45);border:1px solid var(--card-border);box-shadow:0 1px 0 rgba(255,255,255,0.04) inset}
+.snap-stat .v{font-size:24px;font-weight:700;letter-spacing:-.01em}
+.snap-stat .l{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--txt-3);margin-top:4px;font-weight:600}
+.cover-spark{padding:14px 16px;min-height:0;display:flex;flex-direction:column}
+.cover-spark .h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cover-spark .h .t{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--txt-3);font-weight:600}
+.cover-spark canvas{flex:1;min-height:0}
+
+/* Slide 2 layout */
+.s2-grid{display:grid;grid-template-rows:auto auto 1fr;gap:14px;flex:1;min-height:0}
+.s2-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.s2-kpis .glass{padding:20px 22px;min-height:165px}
+.s2-google{display:grid;grid-template-columns:1.2fr 2fr;gap:14px;min-height:140px}
+.s2-google-head{padding:22px 26px;display:flex;flex-direction:column;gap:10px;justify-content:center}
+.s2-google-head .t{font-size:14px;font-weight:600;color:var(--teal);letter-spacing:.04em}
+.s2-google-head .s{font-size:12px;color:var(--txt-2);line-height:1.5}
+.s2-google-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:22px 22px}
+.s2-google-stats .item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 0}
+.s2-google-stats .v{font-size:36px;font-weight:700;color:var(--teal);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.s2-google-stats .l{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-3);margin-top:4px;font-weight:600;text-align:center}
+.s2-insights{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;min-height:0}
+.s2-insights .glass{display:flex;flex-direction:column;gap:8px;padding:16px 18px;min-height:155px;max-height:175px}
+.s2-insights .ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700}
+.ic-accent{background:var(--accent-soft);color:var(--accent)}
+.ic-teal{background:var(--teal-soft);color:var(--teal)}
+.ic-rose{background:var(--rose-soft);color:var(--rose)}
+.s2-insights .ttl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.s2-insights .body{font-size:12px;color:var(--txt-2);line-height:1.5;margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.s2-insights .body li{display:flex;gap:8px;align-items:flex-start}
+.s2-insights .body li::before{content:"•";color:var(--royal-glow);font-weight:700;flex-shrink:0;line-height:1.4}
+
+/* Slide 3 — 2x2 grid */
+.s3-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px;flex:1;min-height:0}
+.s3-grid .glass{display:flex;flex-direction:column;min-height:0;padding:16px 18px}
+.q-title{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--txt-2);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.chart-wrap{flex:1;min-height:0;position:relative}
+.theme-list{display:flex;flex-direction:column;gap:18px;flex:1;justify-content:space-evenly;padding:6px 0}
+.theme-row{display:flex;align-items:center;gap:12px;font-size:13px}
+.theme-row .nm{width:32%;color:var(--txt)}
+.theme-row .bar{flex:1;height:8px;background:rgba(8,16,34,0.55);border-radius:99px;overflow:hidden;position:relative;box-shadow:0 1px 0 rgba(255,255,255,0.04) inset}
+.theme-row .bar .fill{height:100%;background:linear-gradient(90deg, var(--royal), var(--sky));border-radius:99px;transition:width .8s ease;box-shadow:0 0 16px rgba(91,175,255,0.40)}
+.theme-row .cnt{font-weight:600;font-size:13px;color:var(--accent);font-variant-numeric:tabular-nums;width:50px;text-align:right}
+.quote-stack{display:flex;flex-direction:column;gap:10px;flex:1;justify-content:space-around}
+.quote-card{padding:12px 14px;border-radius:12px;background:rgba(8,16,34,0.45);border:1px solid var(--card-border);border-left:3px solid var(--accent);box-shadow:0 1px 0 rgba(255,255,255,0.04) inset;transition:.25s}
+.quote-card:hover{background:rgba(12,22,46,0.55);border-left-color:var(--gold);transform:translateX(2px)}
+.quote-card .t{font-family:Georgia,serif;font-style:italic;font-size:13px;line-height:1.5;color:var(--txt)}
+.quote-card .a{font-size:11px;color:var(--txt-3);margin-top:6px;letter-spacing:.04em}
+.quote-card .a strong{color:var(--accent);font-weight:600}
+
+/* Slide 4 */
+.s4-grid{display:grid;grid-template-rows:1.4fr 0.85fr;gap:14px;flex:1;min-height:0}
+.s4-timeline{padding:22px 28px;display:flex;flex-direction:column;gap:14px;overflow:hidden}
+.s4-tl-head{display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--card-border);padding-bottom:10px}
+.s4-tl-eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700;display:flex;align-items:center;gap:8px}
+.s4-tl-eyebrow .arr{width:18px;height:18px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;box-shadow:0 0 12px var(--accent-soft)}
+.s4-tl-title{font-size:15px;font-weight:700;color:var(--txt);letter-spacing:-.005em}
+.s4-tl-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;flex:1;min-height:0;align-items:start}
+.s4-tl-col{display:flex;flex-direction:column;gap:10px;position:relative;padding-right:18px}
+.s4-tl-col:not(:last-child)::after{content:"";position:absolute;right:0;top:24px;bottom:6px;width:1px;background:linear-gradient(180deg, transparent, var(--card-border) 20%, var(--card-border) 80%, transparent)}
+.s4-tl-when{font-size:11.5px;letter-spacing:.10em;text-transform:uppercase;color:var(--sky-bright);font-weight:700;display:flex;align-items:center;gap:10px}
+.s4-tl-when .dot{width:8px;height:8px;border-radius:50%;background:var(--sky);box-shadow:0 0 12px var(--sky)}
+.s4-tl-col ul{list-style:none;display:flex;flex-direction:column;gap:8px;padding:0;margin:0}
+.s4-tl-col li{font-size:13px;color:var(--txt);line-height:1.5;padding-left:22px;position:relative;font-weight:500}
+.s4-tl-col li::before{content:"→";position:absolute;left:0;top:0;color:var(--accent);font-weight:700;font-size:13px}
+.s4-friction, .s4-recs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.s4-friction{grid-template-columns:repeat(3,1fr)}
+.risk-card{padding:20px 22px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;min-height:150px}
+.risk-card .num{position:absolute;top:6px;right:14px;font-size:64px;font-weight:800;color:var(--accent-soft);letter-spacing:-.02em;line-height:1}
+.risk-card .ttl{font-size:13.5px;font-weight:600;color:var(--txt);margin-bottom:6px;position:relative;z-index:1}
+.risk-card .body{font-size:12.5px;color:var(--txt-2);line-height:1.6;position:relative;z-index:1}
+.risk-card .meter{margin-top:10px;height:4px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden}
+.risk-card .meter .f{height:100%;background:linear-gradient(90deg, var(--rose), var(--accent))}
+.rec-card{padding:18px 20px;position:relative;display:flex;flex-direction:column;justify-content:center;min-height:140px}
+.rec-card .num{position:absolute;top:4px;right:10px;font-size:48px;font-weight:800;color:rgba(91,175,255,0.22);line-height:1}
+.rec-card .ttl{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:6px;position:relative;z-index:1}
+.rec-card .body{font-size:12px;color:var(--txt-2);line-height:1.6;position:relative;z-index:1}
+.s4-verdict{display:grid;grid-template-columns:1fr 1fr;gap:14px;min-height:0}
+.verdict-col{padding:32px 36px;display:grid;grid-template-rows:auto auto auto auto;gap:18px;min-height:0;align-content:start}
+.verdict-col h3{font-size:14px;letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:12px;font-weight:700;margin:0}
+.verdict-col h3 .ic{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;font-weight:700}
+.verdict-protect h3{color:var(--emerald)}
+.verdict-protect h3 .ic{background:var(--emerald)}
+.verdict-close h3{color:var(--accent)}
+.verdict-close h3 .ic{background:var(--accent)}
+.verdict-hero{display:flex;align-items:baseline;gap:14px;padding:12px 14px;border-radius:12px;background:rgba(8,16,34,0.45);border:1px solid var(--card-border);box-shadow:0 1px 0 rgba(255,255,255,0.04) inset}
+.verdict-hero .big{font-size:36px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1}
+.verdict-hero .small{font-size:11px;color:var(--txt-3);letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.verdict-hero .sm-detail{font-size:12px;color:var(--txt);margin-top:2px}
+.verdict-col ul{list-style:none;display:flex;flex-direction:column;gap:12px;margin:0;padding:0}
+.verdict-col li{display:flex;gap:12px;font-size:14.5px;color:var(--txt);line-height:1.6}
+.verdict-col li::before{content:"→";color:var(--accent);font-weight:700;flex-shrink:0;width:14px}
+.verdict-protect li::before{color:var(--emerald)}
+.verdict-cta{padding:10px 14px;border-radius:12px;background:rgba(8,16,34,0.45);border:1px solid var(--card-border);box-shadow:0 1px 0 rgba(255,255,255,0.04) inset;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11.5px}
+.verdict-cta .l{color:var(--txt-2);letter-spacing:.04em}
+.verdict-cta .r{font-weight:600}
+
+/* Slide 5 */
+.s5-grid{display:grid;grid-template-columns:1.3fr 1.05fr;gap:14px;flex:1;min-height:0;align-items:stretch}
+.s5-tables{display:flex;flex-direction:column;gap:14px;min-height:0;height:100%}
+.lb-card{padding:16px 20px;display:flex;flex-direction:column;justify-content:center;flex:1;min-height:0}
+.lb-card .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.lb-card .head .t{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.lb-card.top .head .t{color:var(--emerald)}
+.lb-card.bot .head .t{color:var(--accent)}
+.lb-table{overflow:auto}
+.lb-table table{font-size:14.5px}
+.lb-table th{font-size:11px;padding:12px 16px;letter-spacing:.1em}
+.lb-table td{padding:15px 16px;font-size:14.5px}
+.lb-table .rank-badge{width:28px;height:28px;font-size:12.5px}
+.s5-coaching{padding:18px 22px;display:flex;flex-direction:column;gap:16px;justify-content:space-between;height:100%}
+.s5-coaching .srs-section{flex:1;justify-content:center}
+.s5-coaching .head{display:flex;align-items:center;justify-content:space-between}
+.s5-coaching .head .t{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--txt-2)}
+.coach-row{padding:14px 16px;border-radius:12px;background:rgba(8,16,34,0.45);border:1px solid var(--card-border);box-shadow:0 1px 0 rgba(255,255,255,0.04) inset;transition:.25s}
+.coach-row:hover{border-color:var(--card-border-hi);transform:translateX(2px);background:rgba(12,22,46,0.55)}
+.coach-row .nm-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.coach-row .nm{font-weight:600;font-size:13px}
+.coach-row .body{font-size:11.5px;color:var(--txt-2);line-height:1.5}
+.mm-card{padding:14px 16px;background:linear-gradient(135deg,rgba(242,100,48,0.12),rgba(91,175,255,0.10));border:1px solid var(--accent-soft);border-radius:14px;display:flex;flex-direction:column;gap:8px}
+.mm-card .t{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;display:flex;align-items:center;gap:8px}
+.mm-card .t .ic{width:20px;height:20px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700}
+.mm-card .body{font-size:12.5px;color:var(--txt);line-height:1.55}
+.srs-section{display:flex;flex-direction:column;gap:10px}
+.srs-section .srs-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;padding-bottom:6px;border-bottom:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center}
+.srs-section .srs-label.top{color:var(--emerald)}
+.srs-section .srs-label.bot{color:var(--accent)}
+.srs-section .srs-label .bench{font-size:10.5px;letter-spacing:.06em;color:var(--txt-2);font-weight:500;text-transform:none}
+.srs-row{display:flex;align-items:center;gap:14px;padding:13px 16px;border-radius:12px;background:rgba(8,16,34,0.45);border:1px solid var(--card-border);box-shadow:0 1px 0 rgba(255,255,255,0.04) inset;transition:.25s}
+.srs-row:hover{border-color:var(--card-border-hi);transform:translateX(2px);background:rgba(12,22,46,0.55)}
+.srs-row .rank-badge{width:30px;height:30px;font-size:13px}
+.srs-row .srs-nm{flex:1;min-width:0}
+.srs-row .nm{font-weight:600;font-size:14.5px;line-height:1.2}
+.srs-row .meta{font-size:12px;color:var(--txt-2);line-height:1.2;margin-top:3px}
+.srs-row .srs-val{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.01em;min-width:54px;text-align:right}
+.srs-row.top .srs-val{color:var(--emerald)}
+.srs-row.bot .srs-val{color:var(--accent)}
+
+/* Slide 6 — Renewal */
+.s6-grid{display:grid;grid-template-rows:auto auto 1fr;gap:16px;flex:1;min-height:0}
+.s6-stats{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px}
+.adopt-card{padding:18px 20px;display:flex;align-items:center;gap:18px;position:relative;overflow:hidden}
+.adopt-gauge{position:relative;width:96px;height:96px;flex-shrink:0}
+.adopt-gauge .v{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:var(--accent)}
+.adopt-info{display:flex;flex-direction:column;gap:4px}
+.adopt-info .l{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-3);font-weight:600}
+.adopt-info .v{font-size:22px;font-weight:700;letter-spacing:-.01em}
+.adopt-info .c{font-size:11px;color:var(--txt-2)}
+.timeline{padding:24px 30px;flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center}
+.tl-row{display:flex;align-items:flex-start;justify-content:space-between;position:relative;margin:24px 20px 0}
+.tl-row::before{content:"";position:absolute;top:19px;left:5%;right:5%;height:3px;background:linear-gradient(90deg, var(--emerald), var(--accent), var(--teal));border-radius:99px;z-index:0;opacity:0.55}
+.tl-node{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:160px}
+.tl-node .dot{width:38px;height:38px;border-radius:50%;background:var(--bg-1);border:3px solid;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+.tl-node.now .dot{border-color:var(--emerald);color:var(--emerald);box-shadow:0 0 0 6px rgba(16,185,129,0.18)}
+.tl-node.urgent .dot{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 6px rgba(242,100,48,0.18), 0 0 28px var(--accent);animation:pulse 2s ease-in-out infinite}
+.tl-node.future .dot{border-color:var(--teal);color:var(--teal);box-shadow:0 0 0 6px rgba(6,182,212,0.15)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 6px rgba(242,100,48,0.18), 0 0 28px var(--accent)}50%{box-shadow:0 0 0 10px rgba(242,100,48,0.30), 0 0 40px var(--accent)}}
+.tl-node .lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+.tl-node.now .lbl{color:var(--emerald)}
+.tl-node.urgent .lbl{color:var(--accent)}
+.tl-node.future .lbl{color:var(--teal)}
+.tl-node .date{font-size:15px;font-weight:600}
+.tl-node .sub{font-size:10px;color:var(--txt-3);text-align:center}
+.s6-bottom{display:grid;grid-template-columns:1fr;gap:14px;min-height:0}
+.notice-card{padding:20px 24px;background:linear-gradient(165deg, var(--card-hi) 0%, var(--card) 55%, var(--card-warm) 100%);border:1px solid var(--card-border);border-left:4px solid var(--accent);border-radius:16px;display:flex;flex-direction:column;gap:12px;color:var(--txt);box-shadow:var(--shadow);position:relative;overflow:hidden}
+.notice-card::before{content:"";position:absolute;top:0;left:0;right:0;height:48%;background:linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%);pointer-events:none;border-radius:0 16px 0 0}
+.notice-card .head{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+.notice-card .head .ic{width:38px;height:38px;border-radius:50%;background:var(--accent);box-shadow:0 0 24px var(--accent-soft);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:20px;flex-shrink:0}
+.notice-card .head .t{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-bright);font-weight:700}
+.notice-card .head .hl{font-size:18px;font-weight:700;color:var(--txt);margin-top:2px;letter-spacing:-.01em}
+.notice-card .body{font-size:13px;color:var(--txt-2);line-height:1.6;position:relative;z-index:1}
+.notice-card .gap{font-size:13px;color:var(--accent-bright);font-weight:600;line-height:1.55;padding:10px 14px;border-radius:10px;background:rgba(242,100,48,0.12);border:1px solid var(--accent-soft);position:relative;z-index:1}
+.checklist{padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-height:0;overflow:auto}
+.checklist .head{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-2);font-weight:600;margin-bottom:4px}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(8,16,34,0.4);border:1px solid var(--card-border);font-size:12.5px;line-height:1.5;transition:.2s;cursor:pointer}
+.check-item:hover{background:rgba(12,22,46,0.6);border-color:var(--card-border-hi)}
+.check-item .box{width:16px;height:16px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- ═══════════════ SLIDE 1 — COVER ═══════════════ -->
+<section class="slide active">
+  <div class="topbar">
+    <div class="brand"><div class="dot"></div><div class="lbl">Experience.com  ·  Executive Business Review</div></div>
+    <div class="slide-num">01 / 06</div>
+  </div>
+  <div class="cover-grid">
+    <div class="cover-left">
+      <div>
+        <div class="eyebrow" style="margin-bottom:14px">A 12-month performance review</div>
+        <div class="cover-title">
+          <h1>Synergy <span class="accent">One Lending</span></h1>
+          <div class="sub" style="margin-top:14px;font-size:16px">A data-led look at customer sentiment, agent performance, and external reputation — May 2025 to April 2026.</div>
+        </div>
+      </div>
+      <div class="glass cover-story">
+        <div class="lbl">The Story in Three Acts</div>
+        <div class="cover-story-cols">
+          <div class="story-tile t1">
+            <div class="tag">01 · Excellence</div>
+            <div class="num">95.73</div>
+            <div class="line">NPS — top quartile across 8,529 responses</div>
+          </div>
+          <div class="story-tile t2">
+            <div class="tag">02 · Risk</div>
+            <div class="num">99</div>
+            <div class="line">total detractors across 8,529 responses</div>
+          </div>
+          <div class="story-tile t1">
+            <div class="tag">03 · Search Visibility</div>
+            <div class="num">213</div>
+            <div class="line">Avg Search Rank Score · 37 pts below platform avg (250)</div>
+          </div>
+        </div>
+      </div>
+      <div class="cover-meta">
+        <div class="item glass">
+          <div class="l">Reporting Period</div>
+          <div class="v">May 2025 — Apr 2026</div>
+        </div>
+        <div class="item glass">
+          <div class="l">Active / Contracted</div>
+          <div class="v">274 / 320  <span style="color:var(--emerald);font-size:14px">· 85.6%</span></div>
+        </div>
+        <div class="item glass">
+          <div class="l">Auto-Renewal Date</div>
+          <div class="v" style="color:var(--accent)">August 3, 2026</div>
+        </div>
+        <div class="item glass">
+          <div class="l">Renewal Date</div>
+          <div class="v">Nov 1, 2026</div>
+        </div>
+      </div>
+    </div>
+    <div class="cover-right">
+      <div class="cover-snapshot glass">
+        <div class="cover-snap-title">Account Snapshot</div>
+        <div class="cover-snap-grid">
+          <div class="snap-stat"><div class="v" style="color:var(--emerald)">95.73</div><div class="l">NPS</div></div>
+          <div class="snap-stat"><div class="v">4.93</div><div class="l">Avg Score</div></div>
+          <div class="snap-stat"><div class="v">8,529</div><div class="l">Responses</div></div>
+          <div class="snap-stat"><div class="v" style="color:var(--teal)">4.98</div><div class="l">Google Avg</div></div>
+        </div>
+      </div>
+      <div class="cover-spark glass">
+        <div class="h">
+          <div class="t">Monthly Response Volume</div>
+          <span class="chip teal">12 months</span>
+        </div>
+        <canvas id="coverSpark"></canvas>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SLIDE 2 — SCORECARD ═══════════════ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="dot"></div><div class="lbl">Performance Scorecard</div></div>
+    <div class="slide-num">02 / 06</div>
+  </div>
+  <div>
+    <div class="eyebrow">Executive Summary</div>
+    <h2 style="margin-top:8px">Synergy One Lending — State of the Account</h2>
+  </div>
+  <div class="s2-grid">
+    <div class="s2-kpis">
+      <div class="glass kpi">
+        <div class="lbl"><span class="dot" style="background:var(--teal)"></span>Total Responses</div>
+        <div class="val" style="color:var(--teal)">8,529</div>
+        <div class="ctx">Across 5 campaigns · 38% completion</div>
+        <div class="spark-box"><canvas id="kpiSpark1"></canvas></div>
+      </div>
+      <div class="glass kpi">
+        <div class="lbl"><span class="dot" style="background:var(--teal)"></span>Avg Satisfaction</div>
+        <div class="val" style="color:var(--teal)">4.93</div>
+        <div class="ctx">Out of 5.00 · 22,466 surveys sent surveys sent</div>
+        <div class="spark-box"><canvas id="kpiSpark2"></canvas></div>
+      </div>
+      <div class="glass kpi">
+        <div class="lbl"><span class="dot" style="background:var(--accent)"></span>"Great" Rate</div>
+        <div class="val" style="color:var(--accent)">96.91<span style="font-size:24px">%</span></div>
+        <div class="ctx">8,145 of 8,529 Promoters</div>
+        <div class="spark-box"><canvas id="kpiSpark3"></canvas></div>
+      </div>
+      <div class="glass kpi">
+        <div class="lbl"><span class="dot" style="background:var(--rose)"></span>Non-"Great" Count</div>
+        <div class="val">8</div>
+        <div class="ctx">3.05% (161 Passives · 99 Detractors)</div>
+        <div class="spark-box"><canvas id="kpiSpark4"></canvas></div>
+      </div>
+    </div>
+    <div class="s2-google glass" style="padding:0">
+      <div class="s2-google-head" style="border-right:1px solid var(--line)">
+        <div class="t">★ External Reputation · Google Reviews</div>
+        <div class="s">What prospects see when they search Synergy One Lending. Real-time customer-facing review surface.</div>
+        <div style="margin-top:6px"><span class="chip teal">99.2% 5-star</span></div>
+      </div>
+      <div class="s2-google-stats">
+        <div class="item"><div class="v">1,877</div><div class="l">Total Reviews</div></div>
+        <div class="item"><div class="v">4.98</div><div class="l">Avg Score</div></div>
+        <div class="item"><div class="v">1,862</div><div class="l">5-Star Reviews</div></div>
+        <div class="item"><div class="v">863</div><div class="l">Total Replied</div></div>
+      </div>
+    </div>
+    <div class="s2-insights">
+      <div class="glass">
+        <div class="ic ic-accent">★</div>
+        <div class="ttl" style="color:var(--accent)">Excellence</div>
+        <ul class="body">
+          <li>NPS 95.73 across 8,529 responses</li>
+          <li>96.91% Promoters · only 1.18% Detractors</li>
+          <li>38% completion — well above benchmark</li>
+        </ul>
+      </div>
+      <div class="glass">
+        <div class="ic ic-teal">✓</div>
+        <div class="ttl" style="color:var(--teal)">Search Visibility</div>
+        <ul class="body">
+          <li>Avg SRS 213 · 37 pts below platform avg (250)</li>
+          <li>Top performer Stephanie Chenevert at SRS 759 — proof of ceiling</li>
+          <li>Lift from: profile completion · connections · listings</li>
+        </ul>
+      </div>
+      <div class="glass">
+        <div class="ic ic-rose">!</div>
+        <div class="ttl" style="color:var(--rose)">Complex-Loan Clarity</div>
+        <ul class="body">
+          <li>99 detractor verbatims · 1.18% of responses</li>
+          <li>Themes: comms clarity, jargon, first-time-buyer support</li>
+          <li>Coachable across a small set of LOs</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SLIDE 3 — PERFORMANCE PANORAMA ═══════════════ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="dot"></div><div class="lbl">Performance Panorama</div></div>
+    <div class="slide-num">03 / 06</div>
+  </div>
+  <div>
+    <div class="eyebrow">Four lenses on the same year</div>
+    <h2 style="margin-top:8px">Trends, comparison & customer voice</h2>
+  </div>
+  <div class="s3-grid">
+    <div class="glass">
+      <div class="q-title"><span>Period Comparison · H1 vs H2</span><span class="chip ok">+39 H2</span></div>
+      <div class="chart-wrap"><canvas id="periodChart"></canvas></div>
+    </div>
+    <div class="glass">
+      <div class="q-title"><span>Month-over-Month Responses</span><span class="chip ok">12 months</span></div>
+      <div class="chart-wrap"><canvas id="momChart"></canvas></div>
+    </div>
+    <div class="glass">
+      <div class="q-title"><span>Top Sentiment Themes</span><span class="chip teal">5 themes</span></div>
+      <div class="theme-list">
+        <div class="theme-row"><div class="nm">Communication</div><div class="bar"><div class="fill" style="width:100%"></div></div><div class="cnt">1,683</div></div>
+        <div class="theme-row"><div class="nm">Responsive / Quick</div><div class="bar"><div class="fill" style="width:98.9%"></div></div><div class="cnt">1,259</div></div>
+        <div class="theme-row"><div class="nm">Easy / Smooth</div><div class="bar"><div class="fill" style="width:88.5%"></div></div><div class="cnt">1,248</div></div>
+        <div class="theme-row"><div class="nm">Knowledge & Expertise</div><div class="bar"><div class="fill" style="width:80.5%"></div></div><div class="cnt">1,087</div></div>
+        <div class="theme-row"><div class="nm">Patient / Helpful</div><div class="bar"><div class="fill" style="width:67.8%"></div></div><div class="cnt">1,087</div></div>
+      </div>
+    </div>
+    <div class="glass">
+      <div class="q-title"><span>Customer Voice</span><span class="chip ok">3 verbatim</span></div>
+      <div class="quote-stack">
+        <div class="quote-card">
+          <div class="t">"Angelique and Ryan were the epitome of customer service. Extremely knowledgeable, very understanding of the requirements."</div>
+          <div class="a"><strong>Brittany Lewis</strong> · Jessica Blakely</div>
+        </div>
+        <div class="quote-card">
+          <div class="t">"Andy was very communicative, committed to helping us as best he could, and overall pleasant to work with."</div>
+          <div class="a"><strong>Molly Sweeney</strong> · Andy Jorgensen</div>
+        </div>
+        <div class="quote-card">
+          <div class="t">"Team was very responsive. List of items to address was clear which made it easy to prepare and execute."</div>
+          <div class="a"><strong>Olivia Trevino</strong> · Baha Maleki</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SLIDE 4 — RISK & RECS & VERDICT ═══════════════ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="dot"></div><div class="lbl">Risk · Recommendations · Verdict</div></div>
+    <div class="slide-num">04 / 06</div>
+  </div>
+  <div>
+    <div class="eyebrow" style="color:var(--emerald)">✓ Verdict</div>
+    <h2 style="margin-top:6px">Strategic posture this quarter</h2>
+  </div>
+  <div class="s4-grid">
+<div class="s4-verdict">
+      <div class="glass verdict-col verdict-protect">
+        <h3><span class="ic">✓</span>Protect the strengths</h3>
+        <div class="verdict-hero">
+          <div class="big" style="color:var(--emerald)">95.73</div>
+          <div>
+            <div class="small">NPS</div>
+            <div class="sm-detail">96.91% Promoters · 4.98 Google avg · 99.2% 5-star</div>
+          </div>
+        </div>
+        <ul>
+          <li>Lock in NPS 95.73, 4.93 internal avg, and 4.98 Google rating — top quartile every metric.</li>
+          <li>Codify Jessica Blakely, Baha Maleki, and Stephanie Chenevert's playbooks (NPS 100, 26–41 responses).</li>
+          <li>Preserve the 37.96% completion — well above post-close benchmarks.</li>
+        </ul>
+        <div class="verdict-cta">
+          <div class="l">Posture this quarter</div>
+          <div class="r" style="color:var(--emerald)">Hold the line · Document the playbook</div>
+        </div>
+      </div>
+      <div class="glass verdict-col verdict-close">
+        <h3><span class="ic">!</span>Close the gaps</h3>
+        <div class="verdict-hero">
+          <div class="big" style="color:var(--accent)">99</div>
+          <div>
+            <div class="small">Detractors / 8,529 responses</div>
+            <div class="sm-detail">1.18% rate · concentrated across a small set of LOs</div>
+          </div>
+        </div>
+        <ul>
+          <li>Capture Stephanie Chenevert's playbook (SRS 759) — strongest external visibility on the team.</li>
+          <li>Build first-time-buyer comms SOP — plain language, weekly check-ins.</li>
+          <li>Coaching pod for Joel Kemp, Monica Davis, Jennifer Sheil with top performers.</li>
+        </ul>
+        <div class="verdict-cta">
+          <div class="l">Focus this quarter</div>
+          <div class="r" style="color:var(--accent)">Coaching cycle · 3 LOs · Q3</div>
+        </div>
+      </div>
+    </div>
+    <div class="glass s4-timeline">
+      <div class="s4-tl-head">
+        <span class="s4-tl-eyebrow"><span class="arr">→</span>Action Timeline</span>
+        <span class="s4-tl-title">Next 90 Days · Execution Plan</span>
+      </div>
+      <div class="s4-tl-grid">
+        <div class="s4-tl-col">
+          <div class="s4-tl-when"><span class="dot"></span>This Week</div>
+          <ul>
+            <li>Align CS + sponsor on quarterly focus</li>
+            <li>Schedule coaching pod kickoff</li>
+            <li>Baseline current NPS + SRS</li>
+          </ul>
+        </div>
+        <div class="s4-tl-col">
+          <div class="s4-tl-when"><span class="dot"></span>Next 30 Days</div>
+          <ul>
+            <li>Launch profile-completion sprint</li>
+            <li>Begin call-shadow with top performers</li>
+            <li>Daily check-ins · bottom-3 LOs</li>
+          </ul>
+        </div>
+        <div class="s4-tl-col">
+          <div class="s4-tl-when"><span class="dot"></span>Next 90 Days</div>
+          <ul>
+            <li>Measure NPS + SRS lift</li>
+            <li>Document playbook from top 3 LOs</li>
+            <li>Mid-quarter check-in with sponsor</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SLIDE 5 — TEAM RANKING ═══════════════ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="dot"></div><div class="lbl">Team Performance</div></div>
+    <div class="slide-num">05 / 06</div>
+  </div>
+  <div>
+    <div class="eyebrow">Loan Officer Leaderboard</div>
+    <h2 style="margin-top:6px">Who to celebrate &amp; who to coach</h2>
+  </div>
+  <div class="s5-grid">
+    <div class="s5-tables">
+      <div class="glass lb-card top">
+        <div class="head"><div class="t">★ Top 3 Performing Loan Officers</div><span class="chip ok">Perfect NPS</span></div>
+        <div class="lb-table">
+          <table>
+            <thead><tr><th>Rank</th><th>Loan Officer</th><th>Branch</th><th style="text-align:right">Responses</th><th style="text-align:right">NPS</th><th style="text-align:right">SRS</th></tr></thead>
+            <tbody>
+              <tr><td><span class="rank-badge rank-ok">1</span></td><td><strong>Jessica Blakely</strong></td><td>Allied Mortgage</td><td style="text-align:right">95</td><td style="text-align:right;color:var(--emerald);font-weight:600">100.00</td><td style="text-align:right">306</td></tr>
+              <tr><td><span class="rank-badge rank-ok">2</span></td><td><strong>Baha Maleki</strong></td><td>Little Italy</td><td style="text-align:right">85</td><td style="text-align:right;color:var(--emerald);font-weight:600">100.00</td><td style="text-align:right">445</td></tr>
+              <tr><td><span class="rank-badge rank-ok">3</span></td><td><strong>Stephanie Chenevert</strong></td><td>Baton Rouge</td><td style="text-align:right">63</td><td style="text-align:right;color:var(--emerald);font-weight:600">100.00</td><td style="text-align:right">759</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="glass lb-card bot">
+        <div class="head"><div class="t">⚠ Bottom 3 Opportunity Loan Officers</div><span class="chip warn">Coachable</span></div>
+        <div class="lb-table">
+          <table>
+            <thead><tr><th>Rank</th><th>Loan Officer</th><th>Branch</th><th style="text-align:right">Responses</th><th style="text-align:right">NPS</th><th style="text-align:right">SRS</th></tr></thead>
+            <tbody>
+              <tr><td><span class="rank-badge rank-warn">1</span></td><td><strong>Joel Kemp</strong></td><td>San Diego Corp</td><td style="text-align:right">56</td><td style="text-align:right;color:var(--accent);font-weight:600">81.82</td><td style="text-align:right">286</td></tr>
+              <tr><td><span class="rank-badge rank-warn">2</span></td><td><strong>Monica Davis</strong></td><td>Eagle</td><td style="text-align:right">54</td><td style="text-align:right;color:var(--accent);font-weight:600">92.31</td><td style="text-align:right">362</td></tr>
+              <tr><td><span class="rank-badge rank-warn">3</span></td><td><strong>Jennifer Sheil</strong></td><td>Cincinnati</td><td style="text-align:right">146</td><td style="text-align:right;color:var(--accent);font-weight:600">93.75</td><td style="text-align:right">360</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="glass s5-coaching">
+      <div class="head"><div class="t">Search Rank Score Spotlight</div><span class="chip ok">SRS · /850</span></div>
+      <div class="srs-section">
+        <div class="srs-label top"><span>★ Top 3 SRS Champions</span><span class="bench">Platform avg · 250</span></div>
+        <div class="srs-row top">
+          <span class="rank-badge rank-ok">1</span>
+          <div class="srs-nm"><div class="nm">Ryan Larussa</div><div class="meta">Baton Rouge, LA</div></div>
+          <div class="srs-val">833</div>
+        </div>
+        <div class="srs-row top">
+          <span class="rank-badge rank-ok">2</span>
+          <div class="srs-nm"><div class="nm">Brandi Elgen</div><div class="meta">Modesto, CA</div></div>
+          <div class="srs-val">781</div>
+        </div>
+        <div class="srs-row top">
+          <span class="rank-badge rank-ok">3</span>
+          <div class="srs-nm"><div class="nm">Tony Andrews</div><div class="meta">Yakima, WA</div></div>
+          <div class="srs-val">767</div>
+        </div>
+      </div>
+      <div class="srs-section">
+        <div class="srs-label bot"><span>⚠ Bottom 3 SRS Opportunity</span><span class="bench">Coachable · &lt;100</span></div>
+        <div class="srs-row bot">
+          <span class="rank-badge rank-warn">1</span>
+          <div class="srs-nm"><div class="nm">Kevin O'Neal</div><div class="meta">Henderson, NV</div></div>
+          <div class="srs-val">65</div>
+        </div>
+        <div class="srs-row bot">
+          <span class="rank-badge rank-warn">2</span>
+          <div class="srs-nm"><div class="nm">Trey Haidet</div><div class="meta">Baton Rouge, LA</div></div>
+          <div class="srs-val">67</div>
+        </div>
+        <div class="srs-row bot">
+          <span class="rank-badge rank-warn">3</span>
+          <div class="srs-nm"><div class="nm">Jill Lineback</div><div class="meta">Salem, OR</div></div>
+          <div class="srs-val">69</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SLIDE 6 — RENEWAL ═══════════════ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="dot"></div><div class="lbl">Renewal Information</div></div>
+    <div class="slide-num">06 / 06</div>
+  </div>
+  <div>
+    <div class="eyebrow" style="color:var(--accent)">✓ Renewal Track · Auto-Renewal August 3, 2026</div>
+    <h2 style="margin-top:6px">Contract status &amp; renewal timeline</h2>
+  </div>
+  <div class="s6-grid">
+    <div class="s6-stats">
+      <div class="glass adopt-card">
+        <div class="adopt-gauge">
+          <canvas id="adoptGauge"></canvas>
+          <div class="v" style="color:var(--emerald)">85.6%</div>
+        </div>
+        <div class="adopt-info">
+          <div class="l">Seat Utilization</div>
+          <div class="v" style="color:var(--emerald)">274 / 320</div>
+          <div class="c">46 seats unused</div>
+        </div>
+      </div>
+      <div class="glass" style="padding:18px 22px;display:flex;flex-direction:column;justify-content:center">
+        <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-3);font-weight:600">Contracted Users</div>
+        <div style="font-size:32px;font-weight:700;margin-top:6px;letter-spacing:-.01em">320</div>
+        <div style="font-size:12px;color:var(--txt-2);margin-top:6px">Seats purchased</div>
+      </div>
+      <div class="glass" style="padding:18px 22px;display:flex;flex-direction:column;justify-content:center">
+        <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-3);font-weight:600">Active Users</div>
+        <div style="font-size:32px;font-weight:700;margin-top:6px;letter-spacing:-.01em;color:var(--teal)">274</div>
+        <div style="font-size:12px;color:var(--txt-2);margin-top:6px">Currently on platform</div>
+      </div>
+      <div class="glass" style="padding:18px 22px;display:flex;flex-direction:column;justify-content:center">
+        <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-3);font-weight:600">Unused Seats</div>
+        <div style="font-size:32px;font-weight:700;margin-top:6px;letter-spacing:-.01em;color:var(--emerald)">46</div>
+        <div style="font-size:12px;color:var(--txt-2);margin-top:6px">Modest headroom</div>
+      </div>
+    </div>
+    <div class="glass timeline">
+      <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--txt-2);font-weight:600;margin-bottom:24px">Your Contract Timeline</div>
+      <div class="tl-row">
+        <div class="tl-node now">
+          <div class="dot">●</div>
+          <div class="lbl">Today</div>
+          <div class="date">May 2026</div>
+          <div class="sub">EBR window</div>
+        </div>
+        <div class="tl-node urgent">
+          <div class="dot">!</div>
+          <div class="lbl">Auto-Renewal</div>
+          <div class="date">August 3, 2026</div>
+          <div class="sub">Alignment window open</div>
+        </div>
+        <div class="tl-node future">
+          <div class="dot">▶</div>
+          <div class="lbl">Term Start</div>
+          <div class="date">Nov 1, 2026</div>
+          <div class="sub">New contract year</div>
+        </div>
+      </div>
+    </div>
+    <div class="s6-bottom">
+      <div class="notice-card">
+        <div class="head">
+          <div class="ic">!</div>
+          <div>
+            <div class="t">Renewal Notice · Comfortable Window</div>
+            <div style="font-size:18px;font-weight:700;margin-top:4px">Auto-Renewal · August 3, 2026</div>
+          </div>
+        </div>
+        <div class="body">Experience.com contract will auto-renew on August 3, 2026, with the renewal term starting on November 1, 2026. After August 3, no further changes can be made to the contract.</div>
+        <div class="gap">274 of 320 seats are active (85.6% adoption). Comfortable renewal posture — schedule a 30-minute alignment call before Aug 3 to confirm seat plan and discuss any expansion appetite.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="dots" id="dots"></div>
+<div class="nav">
+  <button id="prev" title="Previous (←)">‹</button>
+  <button id="next" title="Next (→)">›</button>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const dots = document.getElementById('dots');
+let i = 0;
+slides.forEach((_,k)=>{const s=document.createElement('span');if(k===0)s.classList.add('on');s.addEventListener('click',()=>go(k));dots.appendChild(s)});
+function go(n){
+  i = Math.max(0, Math.min(slides.length-1, n));
+  slides.forEach((s,k)=>s.classList.toggle('active', k===i));
+  dots.querySelectorAll('span').forEach((d,k)=>d.classList.toggle('on', k===i));
+}
+document.getElementById('next').onclick = ()=>go(i+1);
+document.getElementById('prev').onclick = ()=>go(i-1);
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight'||e.key===' ') go(i+1);
+  if(e.key==='ArrowLeft') go(i-1);
+});
+
+// Common chart options
+Chart.defaults.color = '#94A3B8';
+Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
+Chart.defaults.font.size = 11;
+
+const monthly = [388,349,436,444,348,477,461,447,307,386,600,508];
+const labels = ['May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr'];
+
+// Cover sparkline — line chart (sky blue)
+new Chart(document.getElementById('coverSpark'), {
+  type:'line',
+  data:{labels, datasets:[{
+    data: monthly, borderColor:'#5BAFFF', backgroundColor:'rgba(91,175,255,0.20)',
+    fill:true, tension:0.4, pointRadius:0, borderWidth:2.5
+  }]},
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{
+      backgroundColor:'rgba(10,27,63,0.95)', borderColor:'rgba(255,255,255,0.12)', borderWidth:1, padding:10,
+      callbacks:{label:c=>` ${c.parsed.y} responses`}
+    }},
+    scales:{
+      x:{grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#7E92B8',font:{size:9}}},
+      y:{display:false}
+    }
+  }
+});
+
+// KPI Sparklines (mini)
+function makeSpark(id, data, color){
+  new Chart(document.getElementById(id), {
+    type:'line',
+    data:{labels:data.map((_,i)=>i), datasets:[{data, borderColor:color, backgroundColor:'transparent', fill:false, tension:0.4, pointRadius:0, borderWidth:2}]},
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{enabled:false}}, scales:{x:{display:false},y:{display:false}}}
+  });
+}
+makeSpark('kpiSpark1', monthly, '#5BAFFF');
+makeSpark('kpiSpark2', [4.92,4.94,4.93,4.90,4.92,4.92,4.91,4.94,4.91,4.96,4.95,4.93], '#5BAFFF');
+makeSpark('kpiSpark3', [95.6,96.6,96.3,94.8,96.6,96.0,95.0,96.6,95.1,97.7,97.5,97.2], '#F26430');
+makeSpark('kpiSpark4', [5,4,5,6,5,4,7,3,3,1,3,4], '#E11D48');
+
+// Slide 3 — Period chart (grouped)
+new Chart(document.getElementById('periodChart'), {
+  type:'bar',
+  data:{
+    labels:['Responses','"Great" Rate %','Detractor Count','Avg × 20'],
+    datasets:[
+      {label:'H1', data:[138, 95.6, 0, 98.5], backgroundColor:'rgba(91,175,255,0.85)', borderRadius:6, barPercentage:0.7, categoryPercentage:0.7},
+      {label:'H2', data:[177, 97.0, 2, 99.0], backgroundColor:'rgba(28,85,198,0.85)', borderRadius:6, barPercentage:0.7, categoryPercentage:0.7}
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{position:'bottom', labels:{color:'#94A3B8', boxWidth:12, padding:10, font:{size:11}}},
+      tooltip:{backgroundColor:'rgba(10,20,38,0.96)', borderColor:'rgba(255,255,255,0.1)', borderWidth:1, padding:10}
+    },
+    scales:{
+      x:{grid:{display:false}, ticks:{color:'#94A3B8', font:{size:10}}},
+      y:{grid:{color:'rgba(255,255,255,0.05)'}, ticks:{color:'#64748B'}, beginAtZero:true, type:'logarithmic'}
+    }
+  }
+});
+
+// Slide 3 — MoM chart (sky blue — non-critical volume data)
+new Chart(document.getElementById('momChart'), {
+  type:'bar',
+  data:{labels, datasets:[{
+    data:monthly, backgroundColor:'rgba(91,175,255,0.85)', borderRadius:5, hoverBackgroundColor:'#3B97F0'
+  }]},
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{backgroundColor:'rgba(10,20,38,0.96)', borderColor:'rgba(255,255,255,0.1)', borderWidth:1, padding:10}},
+    scales:{
+      x:{grid:{display:false}, ticks:{color:'#94A3B8'}},
+      y:{grid:{color:'rgba(255,255,255,0.05)'}, ticks:{color:'#64748B'}, beginAtZero:true}
+    }
+  }
+});
+
+// Slide 6 — Adoption gauge
+new Chart(document.getElementById('adoptGauge'), {
+  type:'doughnut',
+  data:{
+    datasets:[{
+      data:[85.6, 14.4],
+      backgroundColor:['#10B981', 'rgba(255,255,255,0.10)'],
+      borderWidth:0, circumference:360, cutout:'72%'
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{enabled:false}}
+  }
+});
+</script>
+</body>
+</html>
