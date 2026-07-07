@@ -16,6 +16,8 @@ const CNAV = [
   ['reviews','Reviews','reviews'],
   ['templates','Templates','templates'],
   ['sources','Data Sources','sources'],
+  ['team','Team','accounts'],
+  ['settings','Settings','settings'],
 ];
 
 function ClientSidebar({ ws, route, go, onGenerate, onSignOut }) {
@@ -57,7 +59,7 @@ function ClientSidebar({ ws, route, go, onGenerate, onSignOut }) {
   );
 }
 
-const CTITLES = { dashboard:'Dashboard', accounts:'Accounts', reviews:'Reviews', templates:'Templates', sources:'Data Sources', generate:'Generate review', review:'Review' };
+const CTITLES = { dashboard:'Dashboard', accounts:'Accounts', reviews:'Reviews', templates:'Templates', sources:'Data Sources', team:'Team', settings:'Workspace settings', generate:'Generate review', review:'Review' };
 
 function ClientPortal({ onSignOut }) {
   const ws = MP.getWorkspace(CLIENT_WS_ID);
@@ -98,6 +100,8 @@ function ClientPortal({ onSignOut }) {
           {route==='reviews'   && <Reviews ws={ws} openReview={openReview} onGenerate={startGen}/>}
           {route==='templates' && <Templates ws={ws} onGenerate={startGen} onPreview={previewTemplate}/>}
           {route==='sources'   && <Sources ws={ws}/>}
+          {route==='team'      && <ClientTeam ws={ws}/>}
+          {route==='settings'  && <ClientSettings ws={ws}/>}
           {route==='generate'  && <GenerateWizard ws={ws} preAccount={gen?.preAccount} preTemplate={gen?.preTemplate} onCancel={()=>go('reviews')} onComplete={(c)=>{setCfg(c);setRoute('review');}}/>}
           {route==='review' && cfg && <ReviewView cfg={cfg} onBack={()=>go('reviews')}/>}
         </div>

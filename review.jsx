@@ -235,8 +235,44 @@ function SummaryPager({ cfg }) {
   );
 }
 
+function ShareModal({ cfg, onClose }) {
+  const [pw,setPw]=React.useState(false);
+  const [expiry,setExpiry]=React.useState('30 days');
+  const [email,setEmail]=React.useState('');
+  const [copied,setCopied]=React.useState(false);
+  const slug=(cfg.acct?cfg.acct.name:cfg.deckName||'review').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+  const link=`https://share.millionpulse.ai/r/${slug}-${Math.random().toString(36).slice(2,8)}`;
+  return ReactDOM.createPortal((
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <div className="row" style={{justifyContent:'space-between',marginBottom:4}}><h2 style={{fontSize:19}}>Share review</h2><button className="btn btn-ghost btn-sm" style={{padding:8}} onClick={onClose}><Icon name="x" size={16}/></button></div>
+        <p className="muted" style={{fontSize:13,marginTop:0,marginBottom:18}}>Send this review to your customer — no login needed. They open a secure, view-only link.</p>
+        <label style={{display:'block',fontSize:12,fontWeight:600,color:'var(--text-2)',marginBottom:6}}>Secure link</label>
+        <div className="row gap8" style={{marginBottom:16}}>
+          <input className="winput" readOnly value={link} style={{flex:1}} onFocus={e=>e.target.select()}/>
+          <button className="btn btn-ghost btn-sm" onClick={()=>{navigator.clipboard&&navigator.clipboard.writeText(link);setCopied(true);setTimeout(()=>setCopied(false),1500);}}><Icon name={copied?'check':'file'} size={15}/>{copied?'Copied':'Copy'}</button>
+        </div>
+        <div className="row" style={{justifyContent:'space-between',padding:'11px 0',borderTop:'1px solid var(--line-2)'}}>
+          <div><div style={{fontWeight:600,fontSize:13.5}}>Require password</div><div className="muted" style={{fontSize:12}}>Recipient must enter a password</div></div>
+          <button onClick={()=>setPw(p=>!p)} style={{width:44,height:26,borderRadius:20,border:'none',cursor:'pointer',background:pw?'var(--primary)':'var(--line)',position:'relative'}}><span style={{position:'absolute',top:3,left:pw?21:3,width:20,height:20,borderRadius:'50%',background:'#fff',transition:'left .15s'}}></span></button>
+        </div>
+        <div className="row" style={{justifyContent:'space-between',padding:'11px 0',borderTop:'1px solid var(--line-2)',borderBottom:'1px solid var(--line-2)',marginBottom:16}}>
+          <div><div style={{fontWeight:600,fontSize:13.5}}>Link expires</div><div className="muted" style={{fontSize:12}}>Auto-revoke after this period</div></div>
+          <select className="winput" style={{width:130}} value={expiry} onChange={e=>setExpiry(e.target.value)}>{['7 days','30 days','90 days','Never'].map(o=><option key={o}>{o}</option>)}</select>
+        </div>
+        <label style={{display:'block',fontSize:12,fontWeight:600,color:'var(--text-2)',marginBottom:6}}>Email it directly (optional)</label>
+        <div className="row gap8">
+          <input className="winput" style={{flex:1}} type="email" placeholder="customer@company.com" value={email} onChange={e=>setEmail(e.target.value)}/>
+          <button className="btn btn-primary" disabled={!/\S+@\S+\.\S+/.test(email)} style={{opacity:/\S+@\S+\.\S+/.test(email)?1:.5}} onClick={onClose}><Icon name="arrowRight" size={15}/>Send</button>
+        </div>
+      </div>
+    </div>
+  ), document.body);
+}
+
 function ReviewView({ cfg, onBack }) {
   const [view, setView] = React.useState('full');
+  const [share, setShare] = React.useState(false);
   const isEBR = cfg.kind==='EBR';
 
   // Experience.com EBR System output — render the real generated deck + one-pager
@@ -256,7 +292,7 @@ function ReviewView({ cfg, onBack }) {
           <div className="row gap8">
             <span className="pill pill-neutral" style={{marginRight:4}}><span style={{width:7,height:7,borderRadius:'50%',background:'#F26430'}}></span>Experience.com EBR System</span>
             <Btn size="sm" icon="edit">Edit</Btn>
-            <Btn size="sm" icon="share">Share</Btn>
+            <Btn size="sm" icon="share" onClick={()=>setShare(true)}>Share</Btn>
             <Btn variant="primary" size="sm" icon="download">Export {view==='full'?'HTML':'PDF'}</Btn>
           </div>
         </div>
@@ -264,6 +300,7 @@ function ReviewView({ cfg, onBack }) {
         <div className="card" style={{overflow:'hidden',padding:0,height:'calc(100vh - 210px)',minHeight:520}}>
           <iframe key={view} src={src} title="Generated EBR" style={{width:'100%',height:'100%',border:'none',display:'block',background:'#F8FBFE'}}></iframe>
         </div>
+        {share && <ShareModal cfg={cfg} onClose={()=>setShare(false)}/>}
       </div>
     );
   }
@@ -282,11 +319,12 @@ function ReviewView({ cfg, onBack }) {
         <div className="row gap8">
           <span className="pill pill-neutral" style={{marginRight:4}}><Icon name="check" size={12} sw={3} stroke="var(--good)"/>Draft saved</span>
           <Btn size="sm" icon="edit">Edit</Btn>
-          <Btn size="sm" icon="share">Share</Btn>
+          <Btn size="sm" icon="share" onClick={()=>setShare(true)}>Share</Btn>
           <Btn variant="primary" size="sm" icon="download">Export HTML</Btn>
         </div>
       </div>
       {view==='full' ? <FullReview cfg={cfg}/> : <SummaryPager cfg={cfg}/>}
+      {share && <ShareModal cfg={cfg} onClose={()=>setShare(false)}/>}
     </div>
   );
 }
