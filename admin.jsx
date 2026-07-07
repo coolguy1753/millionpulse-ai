@@ -167,8 +167,8 @@ function VerticalDetail({ v, onBack }) {
         ))}
       </div>
 
-      {/* clients + structures */}
-      <div className="grid gap16" style={{gridTemplateColumns:'1fr 1fr',alignItems:'start',marginBottom:16}}>
+      {/* clients */}
+      <div className="grid gap16" style={{gridTemplateColumns:'1fr',alignItems:'start',marginBottom:20}}>
         <div className="card" style={{overflow:'hidden'}}>
           <div className="card-pad" style={{paddingBottom:10}}><h3 style={{fontSize:16}}>Client companies</h3><span className="muted" style={{fontSize:12.5}}>{planned?'No active clients yet — blueprint ready to approach prospects.':`${v.clients} clients in this vertical`}</span></div>
           {v.accounts.length>0 ? (
@@ -193,9 +193,37 @@ function VerticalDetail({ v, onBack }) {
             </div>
           )}
         </div>
-        <StructurePanel title={v.name+' EBR'} tag="EBR" sections={v.ebr} color={v.color}/>
       </div>
-      <StructurePanel title={v.name+' QBR'} tag="QBR" sections={v.qbr} color={v.color}/>
+
+      {(() => {
+        const bp = window.BLUEPRINTS && BLUEPRINTS.forVertical(v.id);
+        if (!bp) return <StructurePanel title={v.name+' QBR'} tag="QBR" sections={v.qbr} color={v.color}/>;
+        const card = (t, tag) => (
+          <div key={t.name} className="card card-pad" style={{display:'flex',flexDirection:'column',gap:8}}>
+            <div className="row gap8" style={{justifyContent:'space-between'}}>
+              <span className={'pill '+(tag==='EBR'?'pill-ebr':'pill-qbr')}>{tag}</span>
+              <span className="tag">{t.use}</span>
+            </div>
+            <h4 style={{fontSize:15,fontFamily:'var(--font-display)'}}>{t.name}</h4>
+            <div className="row gap8" style={{alignItems:'flex-start',fontSize:12,color:'var(--text-2)',lineHeight:1.45}}><Icon name="heart" size={13} stroke={v.color} style={{flex:'0 0 13px',marginTop:2}}/><span><b style={{color:'var(--text)'}}>Signals:</b> {t.focus}</span></div>
+            <ol style={{margin:'4px 0 0',paddingLeft:0,listStyle:'none',display:'grid',gap:4}}>
+              {t.sections.map((s,i)=>(<li key={i} className="row gap8" style={{fontSize:12.5}}><span style={{fontFamily:'var(--font-display)',fontWeight:700,color:v.color,fontVariantNumeric:'tabular-nums',minWidth:18}}>{String(i+1).padStart(2,'0')}</span><span>{s}</span></li>))}
+            </ol>
+          </div>
+        );
+        return (
+          <div style={{marginTop:4}}>
+            <div className="row gap8" style={{margin:'6px 0 12px',alignItems:'baseline'}}>
+              <h3 style={{fontSize:17}}>Review templates</h3>
+              <span className="muted" style={{fontSize:12.5}}>3 EBR + 3 QBR blueprints — structure & sentiment focus tuned for {v.name}</span>
+            </div>
+            <div className="nav-label" style={{color:'var(--text-3)',padding:'0 0 10px'}}>Executive Business Reviews</div>
+            <div className="grid gap16" style={{gridTemplateColumns:'repeat(3,1fr)',marginBottom:20}}>{bp.ebr.map(t=>card(t,'EBR'))}</div>
+            <div className="nav-label" style={{color:'var(--text-3)',padding:'0 0 10px'}}>Quarterly Business Reviews</div>
+            <div className="grid gap16" style={{gridTemplateColumns:'repeat(3,1fr)'}}>{bp.qbr.map(t=>card(t,'QBR'))}</div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
@@ -237,3 +265,69 @@ function AdminConsole() {
 }
 
 Object.assign(window, { AdminConsole });
+
+/* ---------- Admin Overview (HQ dashboard) ---------- */
+function AdminOverview({ go }) {
+  const cl = window.CLIENTS ? CLIENTS.clients : [];
+  const active = cl.filter(c=>c.status==='Active');
+  const onboarding = cl.filter(c=>c.status==='Onboarding');
+  const arr = cl.reduce((s,c)=>s+(c.arr||0),0);
+  const activeVerticals = window.VERTICALS ? VERTICALS.verticals.filter(v=>v.status==='active').length : 0;
+  const stats = [
+    { label:'Active clients', value:active.length, sub:`${cl.length} total`, icon:'accounts', accent:'primary', to:'clients' },
+    { label:'In onboarding', value:onboarding.length, sub:'Needs attention', icon:'clock', accent:'warn', to:'clients' },
+    { label:'ARR under management', value:CLIENTS.fmtM(arr), sub:'Combined book', icon:'trendUp', accent:'good', to:'clients' },
+    { label:'Verticals served', value:activeVerticals, sub:'CS blueprints ready', icon:'layers', accent:'pulse', to:'verticals' },
+  ];
+  const activity = [
+    ['sparkle','TowneBank Mortgage EBR published','Divyanshu Srivastava · 2h ago','primary'],
+    ['plus','NFM Lending added — onboarding 60%','You · 1d ago','warn'],
+    ['accounts','Alex Kent invited as Search Rank Specialist','Sarah Mitchell · 1d ago','pulse'],
+    ['check','Milltex Q2 QBR shared with client','Aisha Khan · 2d ago','good'],
+  ];
+  return (
+    <div className="content-inner fade-up">
+      <div className="row" style={{justifyContent:'space-between',marginBottom:22,alignItems:'flex-start'}}>
+        <div><h1 style={{fontSize:26,marginBottom:6}}>MillionPulse HQ</h1><p className="muted" style={{fontSize:14.5,margin:0}}>Your book of Customer Success business across every client and vertical.</p></div>
+        <div className="row gap8"><Btn icon="accounts" onClick={()=>go('roles')}>Invite user</Btn><Btn variant="primary" icon="plus" onClick={()=>go('clients')}>Add client</Btn></div>
+      </div>
+      <div className="grid gap16" style={{gridTemplateColumns:'repeat(4,1fr)',marginBottom:16}}>
+        {stats.map(s=>(
+          <button key={s.label} className="card card-pad vcard" onClick={()=>go(s.to)} style={{display:'flex',flexDirection:'column',gap:10,textAlign:'left',cursor:'pointer',fontFamily:'var(--font-body)'}}>
+            <div className="row" style={{justifyContent:'space-between'}}><span className="muted" style={{fontSize:13,fontWeight:600}}>{s.label}</span><div style={{width:32,height:32,borderRadius:9,background:`var(--${s.accent}-wash)`,display:'flex',alignItems:'center',justifyContent:'center',color:`var(--${s.accent})`}}><Icon name={s.icon} size={17}/></div></div>
+            <span style={{fontFamily:'var(--font-display)',fontSize:30,fontWeight:600,letterSpacing:'-.03em'}}>{s.value}</span>
+            <span className="muted" style={{fontSize:12.5}}>{s.sub}</span>
+          </button>
+        ))}
+      </div>
+      <div className="grid gap16" style={{gridTemplateColumns:'1fr 340px'}}>
+        <div className="card" style={{overflow:'hidden'}}>
+          <div className="row card-pad" style={{justifyContent:'space-between',paddingBottom:12}}><div><h3 style={{fontSize:16}}>Clients</h3><span className="muted" style={{fontSize:12.5}}>Across all verticals</span></div><Btn size="sm" iconRight="arrowRight" onClick={()=>go('clients')}>View all</Btn></div>
+          <table className="tbl tbl-tight">
+            <thead><tr><th>Client</th><th>Vertical</th><th>ARR</th><th>Status</th></tr></thead>
+            <tbody>
+              {cl.map(c=>(
+                <tr key={c.id} onClick={()=>go('clients')}>
+                  <td><div className="row gap10"><div style={{width:30,height:30,borderRadius:8,flex:'0 0 30px',background:'linear-gradient(135deg,#8B6BF0,#6A4BD8)',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontFamily:'var(--font-display)',fontSize:12}}>{c.logo}</div><span style={{fontWeight:600}}>{c.name}</span></div></td>
+                  <td className="muted" style={{fontSize:13,whiteSpace:'nowrap'}}>{c.vertical}</td>
+                  <td className="mono" style={{fontWeight:600}}>{CLIENTS.fmtM(c.arr)}</td>
+                  <td><span className={'pill '+({Active:'pill-good',Onboarding:'pill-warn',Prospect:'pill-neutral'}[c.status]||'pill-neutral')}>{c.status}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="card card-pad">
+          <h3 style={{fontSize:16,marginBottom:14}}>Recent activity</h3>
+          <div className="grid gap16">
+            {activity.map(([ic,t,m,ac],i)=>(
+              <div key={i} className="row gap12" style={{alignItems:'flex-start'}}><div style={{width:30,height:30,borderRadius:8,flex:'0 0 30px',background:`var(--${ac}-wash)`,color:`var(--${ac})`,display:'flex',alignItems:'center',justifyContent:'center'}}><Icon name={ic} size={15}/></div><div><div style={{fontSize:13.5,fontWeight:600,lineHeight:1.3}}>{t}</div><div className="muted" style={{fontSize:12,marginTop:2}}>{m}</div></div></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { AdminOverview });

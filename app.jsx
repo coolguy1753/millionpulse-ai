@@ -11,7 +11,14 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 }/*EDITMODE-END*/;
 
 const TITLES = {
-  admin:['MillionPulse Admin', 'Million Square Solutions'],
+  overview:['MillionPulse HQ', 'Million Square Solutions'],
+  clients:['Clients', 'MillionPulse HQ'],
+  verticals:['Verticals', 'MillionPulse HQ'],
+  lib:['Template Library', 'MillionPulse HQ'],
+  allreviews:['All Reviews', 'MillionPulse HQ'],
+  billing:['Billing & Plans', 'MillionPulse HQ'],
+  roles:['Team & Roles', 'MillionPulse HQ'],
+  settings:['Settings', 'MillionPulse HQ'],
   dashboard:['Dashboard', null],
   accounts:['Accounts', 'Workspace'],
   reviews:['Reviews', 'Workspace'],
@@ -26,7 +33,7 @@ function App() {
   const [user, setUser] = React.useState(()=>{ try { return JSON.parse(localStorage.getItem('mp_user')||'null'); } catch(e){ return null; } });
   const login = (u)=>{ setUser(u); try{ localStorage.setItem('mp_user', JSON.stringify(u)); }catch(e){} };
   const signOut = ()=>{ setUser(null); try{ localStorage.removeItem('mp_user'); }catch(e){} };
-  const [route, setRoute] = React.useState('admin');
+  const [route, setRoute] = React.useState('overview');
   const [wsId, setWsId] = React.useState('exp');     // active workspace (tenant)
   const [gen, setGen] = React.useState(null);        // {preAccount, preTemplate}
   const [cfg, setCfg] = React.useState(null);        // generated review config
@@ -34,6 +41,7 @@ function App() {
 
   // switching tenant clears any in-flight review/generation so data never crosses workspaces
   const switchWs = (id) => { setWsId(id); setRoute('dashboard'); setGen(null); setCfg(null); };
+  const openWorkspace = (id) => { setWsId(id); setRoute('dashboard'); setGen(null); setCfg(null); };
 
   // apply tweaks to CSS vars
   React.useEffect(()=>{
@@ -75,9 +83,16 @@ function App() {
     <div className="app" style={{'--radius':t.radius+'px'}}>
       <Sidebar route={route} go={go} onGenerate={()=>startGen()} ws={ws} workspaces={MP.workspaces} onSwitch={switchWs} user={user} onSignOut={signOut}/>
       <main className="main">
-        <Topbar title={route==='review'&&cfg?(cfg.acct?`${cfg.acct.name} · ${cfg.kind}`:(cfg.deckName||'Template preview')):title} crumbs={crumb} ws={route==='admin'?null:ws}/>
+        <Topbar title={route==='review'&&cfg?(cfg.acct?`${cfg.acct.name} · ${cfg.kind}`:(cfg.deckName||'Template preview')):title} crumbs={crumb} ws={['overview','clients','verticals','roles','lib','allreviews','billing','settings'].includes(route)?null:ws}/>
         <div className="content">
-          {route==='admin'     && <AdminConsole/>}
+          {route==='overview'  && <AdminOverview go={go}/>}
+          {route==='clients'   && <ClientsPage onOpenWorkspace={openWorkspace}/>}
+          {route==='verticals' && <AdminConsole/>}
+          {route==='lib'       && <TemplateLibrary/>}
+          {route==='allreviews'&& <AllReviews/>}
+          {route==='billing'   && <BillingPage/>}
+          {route==='roles'     && <TeamRolesPage/>}
+          {route==='settings'  && <HQSettings/>}
           {route==='dashboard' && <Dashboard key={wsId} ws={ws} go={go} openAccount={openAccount} onGenerate={startGen}/>}
           {route==='accounts'  && <Accounts key={wsId} ws={ws} openAccount={openAccount} onGenerate={startGen}/>}
           {route==='reviews'   && <Reviews key={wsId} ws={ws} openReview={openReview} onGenerate={startGen}/>}

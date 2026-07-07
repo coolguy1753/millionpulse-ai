@@ -10,6 +10,17 @@ const NAV = [
   { id:'sources',   label:'Data Sources', icon:'sources' },
 ];
 
+const HQNAV = [
+  ['overview','Overview','dashboard'],
+  ['clients','Clients','book'],
+  ['verticals','Verticals','layers'],
+  ['lib','Template Library','templates'],
+  ['allreviews','All Reviews','reviews'],
+  ['billing','Billing','trendUp'],
+  ['roles','Team & Roles','accounts'],
+  ['settings','Settings','settings'],
+];
+
 function WorkspaceSwitcher({ ws, workspaces, onSwitch }) {
   const [open, setOpen] = React.useState(false);
   React.useEffect(()=>{
@@ -60,13 +71,14 @@ function Sidebar({ route, go, onGenerate, ws, workspaces, onSwitch, user, onSign
         </div>
       </div>
 
-      <button className={'nav-item admin-nav' + (route==='admin' ? ' active' : '')} onClick={()=>go('admin')} style={{margin:'2px 0 10px'}}>
-        <Icon name="templates" className="ic" size={18}/>
-        <span>Admin Console</span>
-        <Icon name="sparkle" size={14} style={{marginLeft:'auto',opacity:.7}}/>
-      </button>
+      <div className="nav-label" style={{paddingTop:6}}>MillionPulse HQ</div>
+      {HQNAV.map(([id,label,ic])=>(
+        <button key={id} className={'nav-item'+(route===id?' active':'')} onClick={()=>go(id)}>
+          <Icon name={ic} className="ic" size={18}/><span>{label}</span>
+        </button>
+      ))}
 
-      <div className="nav-label" style={{paddingTop:0}}>Client workspace</div>
+      <div className="nav-label">Client workspace</div>
       <WorkspaceSwitcher ws={ws} workspaces={workspaces} onSwitch={onSwitch}/>
 
       <button className="btn btn-primary" style={{margin:'6px 6px 8px',justifyContent:'center'}} onClick={onGenerate}>
@@ -83,7 +95,6 @@ function Sidebar({ route, go, onGenerate, ws, workspaces, onSwitch, user, onSign
       ))}
 
       <div className="sidebar-foot">
-        <button className="nav-item" onClick={()=>go('sources')}><Icon name="settings" className="ic" size={18}/><span>Settings</span></button>
         <div className="user-chip">
           <Avatar name="Priya Nair" size={32}/>
           <div style={{lineHeight:1.2,overflow:'hidden',flex:1}}>

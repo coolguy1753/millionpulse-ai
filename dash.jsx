@@ -44,7 +44,7 @@ function HealthDonut({ good, warn, risk }) {
   );
 }
 
-function Dashboard({ ws, go, openAccount, onGenerate }) {
+function Dashboard({ ws, go, openAccount, onGenerate, userName='Priya' }) {
   const A = ws.accounts;
   const good = A.filter(a=>a.health>=75).length;
   const warn = A.filter(a=>a.health>=60&&a.health<75).length;
@@ -60,7 +60,7 @@ function Dashboard({ ws, go, openAccount, onGenerate }) {
       {/* Hero row */}
       <div className="row" style={{justifyContent:'space-between',marginBottom:22,alignItems:'flex-start'}}>
         <div>
-          <h1 style={{fontSize:26,marginBottom:6}}>Good morning, Priya 👋</h1>
+          <h1 style={{fontSize:26,marginBottom:6}}>Good morning, {userName} 👋</h1>
           <p className="muted" style={{fontSize:14.5,margin:0}}>In <b style={{color:'var(--text)'}}>{ws.name}</b> you have <b style={{color:'var(--text)'}}>{dueSoon} review{dueSoon!==1?'s':''}</b> due this week and <b style={{color:'var(--risk)'}}>{declining} account{declining!==1?'s':''}</b> trending down.</p>
         </div>
         <Btn variant="primary" icon="sparkle" onClick={onGenerate}>Generate review</Btn>

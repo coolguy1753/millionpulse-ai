@@ -246,4 +246,4 @@ function Sources({ ws }) {
   );
 }
 
-Object.assign(window, { Accounts, Reviews, Templates, Sources });
+Object.assign(window, { Accounts, Reviews, Templates, Sources, FilterTabs });
