@@ -50,8 +50,11 @@ Roles are defined once and applied per workspace (see `clients.js` / Team & Role
 - Team & Roles (users · invite · permission matrix)
 - Settings (org, security/SSO/2FA, API keys, notifications)
 
-**L2 — Client workspace** (same components, scoped)
+**L2 — Client workspace** (same components, scoped to one workspace)
 - Dashboard · Accounts · Reviews · Templates · Data Sources · Generate wizard · Review viewer
+- **Team** (workspace-scoped members · invite teammate · roles reference) — client's own Workspace Admin manages their people
+- **Workspace Settings** (organization profile, notification prefs, connected data sources, read-only plan view)
+- **Share review** — from the review viewer, produce a secure view-only link (optional password + expiry) or email it directly to the client's own customer (the L3 delivery mechanism — no L3 login)
 
 **Client auth flow** (`clientauth.jsx`): sign in · forgot · reset · invite · 2FA · workspace picker · welcome.
 
@@ -179,7 +182,7 @@ Each connection is per-workspace with its own OAuth tokens + sync cadence.
 - The components are already **workspace-scoped via props** (`ws` object), which maps cleanly onto per-tenant API responses.
 
 **File map (prototype):**
-`MillionPulse AI.html` (L1 host) · `Client Portal.html` (L2 host) · `app.jsx` (L1 routing/auth gate) · `client.jsx` (L2 app) · `clientauth.jsx` (client auth flow) · `login.jsx` (admin login) · `admin.jsx` (overview + verticals) · `clients.jsx` (clients + wizard + detail) · `roles.jsx` (team & roles) · `hq.jsx` (library, reviews, billing, settings) · `dash.jsx` `lists.jsx` `generate.jsx` `review.jsx` (workspace screens) · `shell.jsx` `ui.jsx` (shell + primitives) · `styles.css` (design tokens) · `ebr-templates/` (5 locked Experience.com templates).
+`MillionPulse AI.html` (L1 host) · `Client Portal.html` (L2 host) · `app.jsx` (L1 routing/auth gate) · `client.jsx` (L2 app) · `clientpages.jsx` (L2 Team + Workspace Settings) · `clientauth.jsx` (client auth flow) · `login.jsx` (admin login) · `admin.jsx` (overview + verticals) · `clients.jsx` (clients + wizard + detail) · `roles.jsx` (team & roles) · `hq.jsx` (library, reviews, billing, settings) · `dash.jsx` `lists.jsx` `generate.jsx` `review.jsx` (workspace screens; `review.jsx` also hosts the Share modal) · `shell.jsx` `ui.jsx` (shell + primitives) · `styles.css` (design tokens) · `blueprints.js` (per-vertical EBR/QBR blueprints) · `clients.js` `verticals.js` `data.js` (mock data) · `ebr-templates/` (5 locked Experience.com templates).
 
 ---
 
