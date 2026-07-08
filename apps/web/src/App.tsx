@@ -14,6 +14,10 @@ import { AllReviews } from './screens/AllReviews';
 import { Billing } from './screens/Billing';
 import { Settings } from './screens/Settings';
 import { WorkspaceDashboard } from './screens/WorkspaceDashboard';
+import { WorkspaceAccounts } from './screens/WorkspaceAccounts';
+import { WorkspaceReviews } from './screens/WorkspaceReviews';
+import { WorkspaceTemplates } from './screens/WorkspaceTemplates';
+import { WorkspaceSources } from './screens/WorkspaceSources';
 import { Placeholder } from './screens/Placeholder';
 
 const TITLES: Record<string, [string, string | null]> = {
@@ -87,10 +91,10 @@ export default function App() {
           {route === 'settings' && <Settings />}
 
           {route === 'dashboard' && (ws ? <WorkspaceDashboard key={ws.id} wsId={ws.id} /> : <Placeholder title="Dashboard" phase="a connected workspace" />)}
-          {route === 'accounts' && <Placeholder title="Accounts" phase="Phase 2" />}
-          {route === 'reviews' && <Placeholder title="Reviews" phase="Phase 3" />}
-          {route === 'templates' && <Placeholder title="Templates" phase="Phase 3" />}
-          {route === 'sources' && <Placeholder title="Data Sources" phase="Phase 2" />}
+          {route === 'accounts' && (ws ? <WorkspaceAccounts key={ws.id} wsId={ws.id} /> : <Placeholder title="Accounts" phase="a connected workspace" />)}
+          {route === 'reviews' && (ws ? <WorkspaceReviews key={ws.id} wsId={ws.id} /> : <Placeholder title="Reviews" phase="a connected workspace" />)}
+          {route === 'templates' && (ws ? <WorkspaceTemplates key={ws.id} wsId={ws.id} /> : <Placeholder title="Templates" phase="a connected workspace" />)}
+          {route === 'sources' && (ws ? <WorkspaceSources key={ws.id} wsId={ws.id} /> : <Placeholder title="Data Sources" phase="a connected workspace" />)}
         </div>
       </main>
     </div>
