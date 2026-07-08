@@ -1,7 +1,9 @@
-import { Body, Controller, Get, Param, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 import { IsIn, IsOptional, IsString, IsInt } from 'class-validator';
 import { GenerationService } from './generation.service';
+import { IngestService, UploadFile } from './ingest.service';
 import { CurrentUser, Public, RequireCapability } from '../../common/decorators';
 import { AuthUser } from '../../auth/auth.types';
 
@@ -17,10 +19,12 @@ class ShareDto {
   @IsOptional() @IsInt() expiresDays?: number;
 }
 
-// Workspace-scoped generation. The global TenantGuard enforces membership.
 @Controller('ws/:wsId')
 export class GenerationController {
-  constructor(private gen: GenerationService) {}
+  constructor(
+    private gen: GenerationService,
+    private ingest: IngestService,
+  ) {}
 
   @RequireCapability('Generate reviews')
   @Post('reviews/generate')
@@ -37,6 +41,19 @@ export class GenerationController {
   @Post('reviews/:id/share')
   share(@Param('wsId') wsId: string, @Param('id') id: string, @Body() dto: ShareDto) {
     return this.gen.createShare(wsId, id, dto.expiresDays);
+  }
+
+  // Ingest the Experience.com reports (up to 4 xlsx/csv) for a review.
+  @RequireCapability('Generate reviews')
+  @Post('reviews/:id/uploads')
+  @UseInterceptors(FilesInterceptor('files', 4, { limits: { fileSize: 10 * 1024 * 1024 } }))
+  uploads(@Param('wsId') wsId: string, @Param('id') id: string, @UploadedFiles() files: UploadFile[]) {
+    return this.ingest.storeUploads(wsId, id, files ?? []);
+  }
+
+  @Get('reviews/:id/uploads')
+  listUploads(@Param('wsId') wsId: string, @Param('id') id: string) {
+    return this.ingest.listUploads(wsId, id);
   }
 }
 

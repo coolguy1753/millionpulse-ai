@@ -30,9 +30,22 @@ const TITLES = {
 
 function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
-  const [user, setUser] = React.useState(()=>{ try { return JSON.parse(localStorage.getItem('mp_user')||'null'); } catch(e){ return null; } });
+  const [user, setUser] = React.useState(null);
+  const [booting, setBooting] = React.useState(true);
   const login = (u)=>{ setUser(u); try{ localStorage.setItem('mp_user', JSON.stringify(u)); }catch(e){} };
-  const signOut = ()=>{ setUser(null); try{ localStorage.removeItem('mp_user'); }catch(e){} };
+  const signOut = ()=>{ try{ window.MPAPI && window.MPAPI.logout(); }catch(e){} setUser(null); };
+
+  // On load: if a session token exists, fetch the user + live data, then show the app.
+  React.useEffect(()=>{ (async()=>{
+    try {
+      if (window.MPAPI && window.MPAPI.store.access) {
+        const u = await window.MPAPI.me();
+        await window.loadLiveData();
+        setUser(u);
+      }
+    } catch(e) { try{ window.MPAPI && window.MPAPI.logout(); }catch(_){} }
+    setBooting(false);
+  })(); },[]);
   const [route, setRoute] = React.useState('overview');
   const [wsId, setWsId] = React.useState('exp');     // active workspace (tenant)
   const [gen, setGen] = React.useState(null);        // {preAccount, preTemplate}
@@ -61,11 +74,11 @@ function App() {
     const acct = ws.accounts.find(a=>a.name===r.account) || ws.accounts[0];
     if (r.kind==='EBR' && ws.ebrSystem && r.tier) {
       const structure = r.structure || 'single';
-      setCfg({ acct, kind:'EBR', ebr:true, structure, tier:r.tier, deckFile:MP.ebrFileFor(structure,r.tier), onePagerFile:MP.EBR_ONEPAGER,
+      setCfg({ acct, reviewId:r.id, wsId:ws.id, kind:'EBR', ebr:true, structure, tier:r.tier, deckFile:MP.ebrFileFor(structure,r.tier), onePagerFile:MP.EBR_ONEPAGER,
         deckName:`${structure==='multi'?'Multi':'Single'}-Account · ${r.tier}`, slides:r.tier==='SRP550'?8:6, multiBrand:structure==='multi',
         brief:{ org:r.account, period:'June 2025 – May 2026', tier:r.tier } });
     } else {
-      setCfg({ acct, kind:r.kind, tpl:{name:r.template} });
+      setCfg({ acct, reviewId:r.id, wsId:ws.id, kind:r.kind, tpl:{name:r.template} });
     }
     setRoute('review');
   };
@@ -77,6 +90,7 @@ function App() {
 
   const [title, crumb] = TITLES[route] || ['', null];
 
+  if (booting) return <div style={{height:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text-3)',fontFamily:'var(--font-body)'}}>Loading…</div>;
   if (!user) return <Login onLogin={login}/>;
 
   return (

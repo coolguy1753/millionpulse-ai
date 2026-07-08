@@ -3,19 +3,26 @@
    ============================================================ */
 
 function Login({ onLogin }) {
-  const [email, setEmail] = React.useState('admin@millionsquaresolutions.com');
+  const [email, setEmail] = React.useState('priya@millionsquare.com');
   const [pw, setPw] = React.useState('');
   const [show, setShow] = React.useState(false);
   const [remember, setRemember] = React.useState(true);
   const [err, setErr] = React.useState('');
   const [busy, setBusy] = React.useState(false);
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e && e.preventDefault();
     if (!/^\S+@\S+\.\S+$/.test(email)) { setErr('Enter a valid work email.'); return; }
     if (pw.trim().length < 1) { setErr('Enter your password.'); return; }
     setErr(''); setBusy(true);
-    setTimeout(()=> onLogin({ email, remember }), 700);
+    try {
+      const user = await window.MPAPI.login(email.trim(), pw);
+      await window.loadLiveData();
+      onLogin(user);
+    } catch (ex) {
+      setErr(ex && ex.message ? ex.message : 'Sign in failed');
+      setBusy(false);
+    }
   };
 
   return (
@@ -80,11 +87,11 @@ function Login({ onLogin }) {
           </button>
 
           <div className="login-divider"><span>or</span></div>
-          <button type="button" className="btn btn-ghost" style={{width:'100%',justifyContent:'center',padding:'10px'}} onClick={()=>onLogin({email:'sso@millionsquaresolutions.com',remember:true})}>
+          <button type="button" className="btn btn-ghost" style={{width:'100%',justifyContent:'center',padding:'10px'}} onClick={()=>setErr('SSO coming soon — use email + password for now.')}>
             <span style={{fontFamily:'var(--font-display)',fontWeight:700}}>SSO</span> Continue with Single Sign-On
           </button>
 
-          <p className="muted" style={{fontSize:12,textAlign:'center',marginTop:20,marginBottom:0}}>Prototype — any password signs you in.</p>
+          <p className="muted" style={{fontSize:12,textAlign:'center',marginTop:20,marginBottom:0}}>Try: priya@millionsquare.com (HQ) · password: password123</p>
         </form>
       </div>
     </div>

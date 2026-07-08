@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Icon, Btn, Spinner } from '../ui/primitives';
 import { api } from '../lib/api';
 
@@ -6,6 +6,13 @@ interface Deck {
   html: string;
   name: string | null;
   account: string | null;
+}
+
+interface UploadRow {
+  id: string;
+  filename: string;
+  kind: string;
+  parsed?: { rowCount?: number; metrics?: Record<string, number> } | null;
 }
 
 function ShareModal({ wsId, reviewId, onClose }: { wsId: string; reviewId: string; onClose: () => void }) {
@@ -82,12 +89,36 @@ function ShareModal({ wsId, reviewId, onClose }: { wsId: string; reviewId: strin
 
 export function ReviewViewer({ wsId, reviewId, onBack }: { wsId: string; reviewId: string; onBack: () => void }) {
   const [deck, setDeck] = useState<Deck | null>(null);
+  const [uploads, setUploads] = useState<UploadRow[]>([]);
   const [err, setErr] = useState('');
   const [sharing, setSharing] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const loadDeck = () => api.get(`/ws/${wsId}/reviews/${reviewId}/deck`).then(setDeck);
+  const loadUploads = () => api.get(`/ws/${wsId}/reviews/${reviewId}/uploads`).then(setUploads).catch(() => setUploads([]));
 
   useEffect(() => {
-    api.get(`/ws/${wsId}/reviews/${reviewId}/deck`).then(setDeck).catch((e) => setErr(e.message));
+    loadDeck().catch((e) => setErr(e.message));
+    loadUploads();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wsId, reviewId]);
+
+  const onFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setUploading(true);
+    try {
+      await api.uploadFiles(`/ws/${wsId}/reviews/${reviewId}/uploads`, files);
+      await loadUploads();
+      await loadDeck(); // deck now includes the ingested data
+    } catch (ex: any) {
+      setErr(ex.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  };
 
   if (err) return <div className="content-inner" style={{ color: 'var(--risk)', padding: 40 }}>{err}</div>;
   if (!deck) return <Spinner label="Loading review…" />;
@@ -109,11 +140,52 @@ export function ReviewViewer({ wsId, reviewId, onBack }: { wsId: string; reviewI
         </div>
       </div>
 
+      {/* Ingest reports */}
+      <div className="card card-pad" style={{ marginBottom: 16 }}>
+        <div className="row" style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <h3 style={{ fontSize: 15 }}>Ingest reports</h3>
+            <p className="muted" style={{ fontSize: 12.5, margin: '4px 0 0' }}>
+              Upload the Experience.com reports (NPS, Campaign, Survey, User Details) — .xlsx or .csv. Parsed data is added to the deck.
+            </p>
+          </div>
+          <button className="btn btn-ghost btn-sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
+            <Icon name="upload" size={15} />
+            {uploading ? 'Parsing…' : 'Upload files'}
+          </button>
+          <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" multiple onChange={onFiles} style={{ display: 'none' }} />
+        </div>
+
+        {uploads.length > 0 && (
+          <div className="row gap8" style={{ flexWrap: 'wrap', marginTop: 14 }}>
+            {uploads.map((u) => {
+              const m = u.parsed?.metrics || {};
+              const bits = Object.entries(m)
+                .map(([k, v]) => `${k}: ${v}`)
+                .join(' · ');
+              return (
+                <div key={u.id} className="row gap8" style={{ border: '1px solid var(--line)', borderRadius: 10, padding: '8px 12px', background: 'var(--surface-2)' }}>
+                  <Icon name="file" size={15} stroke="var(--primary)" />
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 600 }}>
+                      {u.filename} <span className="tag" style={{ marginLeft: 4 }}>{u.kind}</span>
+                    </div>
+                    <div className="muted" style={{ fontSize: 11.5 }}>
+                      {u.parsed?.rowCount ?? 0} rows{bits ? ` · ${bits}` : ''}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
       <div className="card" style={{ overflow: 'hidden', padding: 0 }}>
         <iframe
           title="review-deck"
           srcDoc={deck.html}
-          style={{ width: '100%', height: 'calc(100vh - 180px)', border: 'none', display: 'block', background: '#fff' }}
+          style={{ width: '100%', height: 'calc(100vh - 300px)', minHeight: 480, border: 'none', display: 'block', background: '#fff' }}
         />
       </div>
 

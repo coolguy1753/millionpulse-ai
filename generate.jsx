@@ -97,11 +97,22 @@ function GenerateWizard({ ws, preAccount, preTemplate, onComplete, onCancel }) {
   },[step]);
   React.useEffect(()=>{
     if (step===genStep && progress>=genList.length) {
+      let cancelled = false;
       const cfg = isExpEbr
         ? { acct, kind:'EBR', ebr:true, structure, tier, deckFile, onePagerFile:MP.EBR_ONEPAGER, deckName, slides:deckSlides, brief:{...brief}, multiBrand }
         : { acct, kind, tpl };
-      const t = setTimeout(()=>onComplete(cfg), 900);
-      return ()=>clearTimeout(t);
+      (async()=>{
+        try {
+          if (window.MPAPI && ws && ws.id) {
+            const review = await window.MPAPI.post('/ws/'+ws.id+'/reviews/generate', {
+              accountId: acct && acct.id, kind: cfg.kind, quarter: (brief && brief.period) || undefined,
+            });
+            cfg.reviewId = review.id; cfg.wsId = ws.id;
+          }
+        } catch(e) { /* fall back to local preview */ }
+        if (!cancelled) setTimeout(()=>onComplete(cfg), 400);
+      })();
+      return ()=>{ cancelled = true; };
     }
   },[progress,step]);
 

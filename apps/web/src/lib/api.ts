@@ -104,4 +104,16 @@ export const api = {
     return data.user;
   },
   me: () => raw('/auth/me'),
+
+  // Multipart upload (files) — lets the browser set the multipart boundary.
+  async uploadFiles(path: string, files: File[]) {
+    const fd = new FormData();
+    files.forEach((f) => fd.append('files', f));
+    const headers: Record<string, string> = {};
+    const access = tokenStore.access;
+    if (access) headers.Authorization = `Bearer ${access}`;
+    const res = await fetch(`${BASE}${path}`, { method: 'POST', headers, body: fd });
+    if (!res.ok) throw new ApiError(res.status, res.statusText);
+    return res.json();
+  },
 };

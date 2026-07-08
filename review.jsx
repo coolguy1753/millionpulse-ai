@@ -270,10 +270,100 @@ function ShareModal({ cfg, onClose }) {
   ), document.body);
 }
 
+// Live review viewer — backend-generated HTML deck + Download HTML + secure Share + report ingest.
+function LiveReviewView({ cfg, onBack }) {
+  const wsId = cfg.wsId, reviewId = cfg.reviewId;
+  const [html, setHtml] = React.useState('');
+  const [onePager, setOnePager] = React.useState('');
+  const [view, setView] = React.useState('full');
+  const [uploads, setUploads] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [err, setErr] = React.useState('');
+  const [shareUrl, setShareUrl] = React.useState('');
+  const [busy, setBusy] = React.useState(false);
+  const [copied, setCopied] = React.useState(false);
+  const fileRef = React.useRef(null);
+  const current = view==='full' ? html : (onePager || html);
+
+  const loadDeck = ()=> window.MPAPI.get('/ws/'+wsId+'/reviews/'+reviewId+'/deck').then(r=>{ setHtml(r.html); setOnePager(r.onePagerHtml||''); });
+  const loadUploads = ()=> window.MPAPI.get('/ws/'+wsId+'/reviews/'+reviewId+'/uploads').then(setUploads).catch(()=>setUploads([]));
+
+  React.useEffect(()=>{ (async()=>{
+    try { await loadDeck(); await loadUploads(); } catch(e){ setErr(e.message||'Failed to load review'); }
+    setLoading(false);
+  })(); },[wsId,reviewId]);
+
+  const download = ()=>{
+    const blob = new Blob([current], {type:'text/html'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = ((cfg.acct&&cfg.acct.name)||'review').replace(/[^a-z0-9]+/gi,'-')+'-'+cfg.kind+(view==='summary'?'-1pager':'')+'.html';
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  };
+  const createShare = async ()=>{
+    setBusy(true);
+    try { const r = await window.MPAPI.post('/ws/'+wsId+'/reviews/'+reviewId+'/share',{expiresDays:30}); setShareUrl(r.url); }
+    finally { setBusy(false); }
+  };
+  const copyShare = ()=>{ if(navigator.clipboard) navigator.clipboard.writeText(shareUrl); setCopied(true); setTimeout(()=>setCopied(false),1500); };
+  const onFiles = async (e)=>{
+    const files = Array.from(e.target.files||[]); if(!files.length) return;
+    setBusy(true);
+    try { await window.MPAPI.uploadFiles('/ws/'+wsId+'/reviews/'+reviewId+'/uploads', files); await loadUploads(); await loadDeck(); }
+    catch(ex){ setErr(ex.message||'Upload failed'); }
+    finally { setBusy(false); if(fileRef.current) fileRef.current.value=''; }
+  };
+
+  return (
+    <div className="fade-up">
+      <div className="row" style={{justifyContent:'space-between',marginBottom:16,flexWrap:'wrap',gap:12}}>
+        <div className="row gap12">
+          <button className="btn btn-ghost btn-sm" onClick={onBack}><Icon name="arrowLeft" size={15}/>Back</button>
+          <div style={{display:'flex',background:'var(--surface-2)',border:'1px solid var(--line)',borderRadius:10,padding:3}}>
+            {[['full','Full deck','reviews'],['summary','1-pager','file']].map(([v,l,ic])=>(
+              <button key={v} onClick={()=>setView(v)} className="row gap8" style={{border:'none',padding:'7px 12px',borderRadius:8,fontSize:13,fontWeight:600,fontFamily:'var(--font-body)',cursor:'pointer',background:view===v?'var(--surface)':'transparent',color:view===v?'var(--text)':'var(--text-2)',boxShadow:view===v?'var(--shadow-sm)':'none'}}><Icon name={ic} size={15}/>{l}</button>
+            ))}
+          </div>
+        </div>
+        <div className="row gap8">
+          <button className="btn btn-ghost btn-sm" onClick={()=>fileRef.current&&fileRef.current.click()} disabled={busy}><Icon name="upload" size={15}/>{busy?'Working…':'Ingest reports'}</button>
+          <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" multiple onChange={onFiles} style={{display:'none'}}/>
+          <Btn size="sm" icon="share" onClick={createShare}>Share</Btn>
+          <Btn variant="primary" size="sm" icon="download" onClick={download}>Download HTML</Btn>
+        </div>
+      </div>
+
+      {shareUrl && (
+        <div className="row gap8" style={{marginBottom:12,padding:'10px 12px',border:'1px solid var(--line)',borderRadius:10,background:'var(--surface-2)'}}>
+          <Icon name="share" size={15} stroke="var(--primary)"/>
+          <input className="winput" readOnly value={shareUrl} onFocus={e=>e.target.select()} style={{flex:1}}/>
+          <button className={'btn btn-sm '+(copied?'btn-primary':'btn-ghost')} onClick={copyShare}><Icon name={copied?'check':'file'} size={14}/>{copied?'Copied':'Copy'}</button>
+        </div>
+      )}
+
+      {uploads.length>0 && (
+        <div className="row gap8" style={{flexWrap:'wrap',marginBottom:12}}>
+          {uploads.map(u=>{ const m=(u.parsed&&u.parsed.metrics)||{}; const bits=Object.keys(m).map(k=>k+': '+m[k]).join(' · ');
+            return <span key={u.id} className="pill pill-neutral"><Icon name="file" size={12}/>{u.filename} · {(u.parsed&&u.parsed.rowCount)||0} rows{bits?' · '+bits:''}</span>; })}
+        </div>
+      )}
+
+      {err && <div className="login-err" style={{marginBottom:12}}><Icon name="flag" size={13}/>{err}</div>}
+
+      <div className="card" style={{overflow:'hidden',padding:0,height:'calc(100vh - 210px)',minHeight:520}}>
+        {loading
+          ? <div style={{height:'100%',display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text-3)'}}>Loading deck…</div>
+          : <iframe key={view} srcDoc={current} title="Generated review" style={{width:'100%',height:'100%',border:'none',display:'block',background:'#fff'}}></iframe>}
+      </div>
+    </div>
+  );
+}
+
 function ReviewView({ cfg, onBack }) {
   const [view, setView] = React.useState('full');
   const [share, setShare] = React.useState(false);
   const isEBR = cfg.kind==='EBR';
+  if (cfg.reviewId && window.MPAPI) return <LiveReviewView cfg={cfg} onBack={onBack}/>;
 
   // Experience.com EBR System output — render the real generated deck + one-pager
   if (cfg.ebr) {
