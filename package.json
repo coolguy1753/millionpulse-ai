@@ -1,0 +1,25 @@
+{
+  "name": "millionpulse-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MillionPulse AI — multi-tenant B2B Customer Success platform (EBR/QBR generation) by Million Square Solutions",
+  "packageManager": "pnpm@9.6.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm -r build",
+    "dev:api": "pnpm --filter @millionpulse/api dev",
+    "dev:web": "pnpm --filter @millionpulse/web dev",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:migrate": "pnpm --filter @millionpulse/api prisma:migrate",
+    "db:push": "pnpm --filter @millionpulse/api prisma:push",
+    "db:generate": "pnpm --filter @millionpulse/api prisma:generate",
+    "db:seed": "pnpm --filter @millionpulse/api prisma:seed",
+    "db:rls": "pnpm --filter @millionpulse/api prisma:rls",
+    "setup:cloud": "pnpm install && pnpm db:generate && pnpm db:push && pnpm db:seed",
+    "setup": "pnpm install && pnpm db:up && node scripts/wait-for-db.mjs && pnpm db:generate && pnpm db:migrate && pnpm db:rls && pnpm db:seed"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

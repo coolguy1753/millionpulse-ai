@@ -1,0 +1,395 @@
+// ============================================================
+// MillionPulse AI — Prisma data model
+// Multi-tenant: every workspace-owned row carries workspaceId.
+// Tenant isolation is enforced two ways:
+//   1) Application layer (TenantGuard + scoped queries)
+//   2) Database layer (Postgres Row-Level Security) — see
+//      prisma/migrations/*_rls / prisma/rls.sql
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Enums ----------
+
+enum ClientStatus {
+  prospect
+  onboarding
+  active
+  churned
+}
+
+enum ReviewKind {
+  EBR
+  QBR
+}
+
+enum ReviewStatus {
+  draft
+  in_review
+  published
+}
+
+enum AccountStructure {
+  single
+  multi
+}
+
+enum UserStatus {
+  invited
+  active
+  disabled
+}
+
+enum PermissionLevel {
+  none
+  partial
+  full
+}
+
+enum VerticalStatus {
+  active
+  planned
+}
+
+enum TemplateStatus {
+  live
+  draft
+}
+
+enum DataSourceStatus {
+  connected
+  available
+  error
+}
+
+enum SubscriptionStatus {
+  paid
+  trial
+  due
+}
+
+// ---------- Platform owner ----------
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  clients Client[]
+}
+
+// ---------- L2 tenant: Client + its Workspace ----------
+
+model Client {
+  id                 String       @id @default(cuid())
+  organizationId     String
+  name               String
+  domain             String       @unique
+  logo               String? // short badge text, e.g. "E"
+  verticalId         String?
+  plan               String? // e.g. SRP550 / SRP850 / Growth / Enterprise
+  region             String?
+  arr                Int          @default(0)
+  status             ClientStatus @default(prospect)
+  onboardingProgress Int          @default(0)
+  lead               String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  organization Organization  @relation(fields: [organizationId], references: [id])
+  vertical     Vertical?     @relation(fields: [verticalId], references: [id])
+  workspace    Workspace?
+  subscription Subscription?
+
+  @@index([verticalId])
+  @@index([organizationId])
+}
+
+// The tenant boundary. 1:1 with Client.
+model Workspace {
+  id       String  @id @default(cuid())
+  clientId String  @unique
+  name     String
+  short    String?
+  accent   String? // brand accent color for the workspace
+  industry String?
+
+  client      Client                 @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  accounts    Account[]
+  reviews     Review[]
+  connections DataSourceConnection[]
+  uploads     Upload[]
+  templates   Template[]
+  memberships Membership[]
+  invites     Invite[]
+  auditLogs   AuditLog[]
+}
+
+// ---------- Workspace-scoped domain ----------
+
+model Account {
+  id                String           @id @default(cuid())
+  workspaceId       String
+  name              String
+  logo              String?
+  tier              String? // Enterprise / Strategic / Growth
+  arr               Int              @default(0)
+  seats             Int              @default(0)
+  health            Int? // 0-100
+  trend             Int? // health delta
+  nps               Int?
+  tickets           Int?
+  adoption          Float? // 0-1
+  region            String?
+  csmId             String?
+  srSpecialistId    String?
+  autoRenewalDate   DateTime?
+  termStartDate     DateTime?
+  srpTier           String? // SRP550 / SRP850
+  structure         AccountStructure @default(single)
+  brands            String[]         @default([])
+  posture           String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  csm          User?     @relation("AccountCsm", fields: [csmId], references: [id])
+  srSpecialist User?     @relation("AccountSrSpecialist", fields: [srSpecialistId], references: [id])
+  reviews      Review[]
+
+  @@index([workspaceId])
+}
+
+model Review {
+  id          String       @id @default(cuid())
+  workspaceId String
+  accountId   String?
+  kind        ReviewKind
+  templateId  String?
+  templateName String? // denormalized label for display (matches prototype)
+  structure   String?
+  tier        String?
+  status      ReviewStatus @default(draft)
+  ownerId     String?
+  quarter     String?
+  deckUrl     String?
+  onepagerUrl String?
+  pdfUrl      String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  workspace  Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  account    Account?    @relation(fields: [accountId], references: [id])
+  template   Template?   @relation(fields: [templateId], references: [id])
+  owner      User?       @relation(fields: [ownerId], references: [id])
+  uploads    Upload[]
+  shareLinks ShareLink[]
+
+  @@index([workspaceId])
+  @@index([accountId])
+}
+
+model DataSourceConnection {
+  id          String           @id @default(cuid())
+  workspaceId String
+  provider    String // salesforce | hubspot | pendo | zendesk | delighted | ...
+  category    String? // CRM | Product usage | Support | Health & NPS
+  status      DataSourceStatus @default(available)
+  detail      String?
+  lastSyncAt  DateTime?
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+}
+
+model Upload {
+  id          String   @id @default(cuid())
+  workspaceId String
+  reviewId    String?
+  filename    String
+  kind        String // nps | campaign | survey | users | generic
+  parsedJson  Json?
+  uploadedAt  DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  review    Review?   @relation(fields: [reviewId], references: [id])
+
+  @@index([workspaceId])
+}
+
+// ---------- Catalog (shared) ----------
+
+model Vertical {
+  id          String         @id @default(cuid())
+  name        String
+  icon        String?
+  color       String?
+  status      VerticalStatus @default(planned)
+  metricsDef  Json?
+  dashboardDef Json?
+
+  clients    Client[]
+  templates  Template[]
+  blueprints TemplateBlueprint[]
+}
+
+model TemplateBlueprint {
+  id             String     @id @default(cuid())
+  verticalId     String
+  kind           ReviewKind
+  name           String
+  use            String?
+  sentimentFocus String?
+  sections       Json?
+
+  vertical  Vertical   @relation(fields: [verticalId], references: [id])
+  templates Template[]
+}
+
+model Template {
+  id             String         @id @default(cuid())
+  // Templates can be part of the shared catalog (workspaceId null) or
+  // workspace-scoped (e.g. the locked Experience.com EBR System templates).
+  workspaceId    String?
+  blueprintId    String?
+  verticalId     String?
+  name           String
+  kind           ReviewKind
+  version        String         @default("1.0.0")
+  status         TemplateStatus @default(live)
+  system         Boolean        @default(false)
+  structure      String?
+  tier           String?
+  description    String?
+  use            String?
+  htmlSource     String?
+  onepagerSource String?
+  usedByCount    Int            @default(0)
+
+  workspace Workspace?         @relation(fields: [workspaceId], references: [id])
+  blueprint TemplateBlueprint? @relation(fields: [blueprintId], references: [id])
+  vertical  Vertical?          @relation(fields: [verticalId], references: [id])
+  reviews   Review[]
+
+  @@index([workspaceId])
+}
+
+// ---------- Identity, roles, tenancy links ----------
+
+model User {
+  id           String     @id @default(cuid())
+  name         String
+  email        String     @unique
+  passwordHash String?
+  status       UserStatus @default(invited)
+  totpSecret   String? // 2FA (TOTP) — set when the user enables 2FA
+  totpEnabled  Boolean    @default(false)
+  lastActiveAt DateTime?
+  createdAt    DateTime   @default(now())
+
+  memberships          Membership[]
+  reviewsOwned         Review[]
+  accountsAsCsm        Account[]    @relation("AccountCsm")
+  accountsAsSpecialist Account[]    @relation("AccountSrSpecialist")
+  auditLogs            AuditLog[]
+}
+
+model Role {
+  id          String  @id // superadmin | wsadmin | csm | srs | viewer
+  name        String
+  scope       String
+  color       String?
+  description String?
+
+  permissions RolePermission[]
+  memberships Membership[]
+}
+
+// Capability × role permission matrix (ARCHITECTURE.md §2)
+model RolePermission {
+  id         String          @id @default(cuid())
+  roleId     String
+  capability String // e.g. "Generate reviews"
+  level      PermissionLevel @default(none)
+
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, capability])
+}
+
+// user <-> workspace <-> role. workspaceId null == "all" (super-admin scope).
+model Membership {
+  id                String   @id @default(cuid())
+  userId            String
+  workspaceId       String? // null = all workspaces (HQ / super-admin)
+  roleId            String
+  assignedAccountIds String[] @default([])
+  createdAt         DateTime @default(now())
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  role      Role       @relation(fields: [roleId], references: [id])
+
+  @@unique([userId, workspaceId])
+  @@index([workspaceId])
+}
+
+model Invite {
+  id          String   @id @default(cuid())
+  email       String
+  roleId      String
+  workspaceId String?
+  token       String   @unique
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  workspace Workspace? @relation(fields: [workspaceId], references: [id])
+}
+
+model Subscription {
+  id            String             @id @default(cuid())
+  clientId      String             @unique
+  plan          String
+  seats         Int                @default(0)
+  mrr           Int                @default(0)
+  arr           Int                @default(0)
+  billingStatus SubscriptionStatus @default(trial)
+  renewalDate   DateTime?
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+// L3 delivery — a review shared via secure link (no login).
+model ShareLink {
+  id           String    @id @default(cuid())
+  reviewId     String
+  token        String    @unique
+  passwordHash String?
+  expiresAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorId     String?
+  workspaceId String?
+  action      String
+  entity      String
+  meta        Json?
+  createdAt   DateTime @default(now())
+
+  actor     User?      @relation(fields: [actorId], references: [id])
+  workspace Workspace? @relation(fields: [workspaceId], references: [id])
+
+  @@index([workspaceId])
+}

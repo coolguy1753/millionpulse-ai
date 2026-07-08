@@ -1,0 +1,35 @@
+# Local infrastructure for MillionPulse AI development.
+# Start with:  pnpm db:up   (or: docker compose up -d)
+# Postgres holds all app data; Redis is used by the async generation
+# job queue (from Phase 3 onward).
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: millionpulse-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: millionpulse
+      POSTGRES_PASSWORD: millionpulse
+      POSTGRES_DB: millionpulse
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U millionpulse"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: millionpulse-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+
+volumes:
+  pgdata:
+  redisdata:
