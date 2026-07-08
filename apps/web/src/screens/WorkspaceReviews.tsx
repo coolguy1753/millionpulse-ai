@@ -19,7 +19,7 @@ const statusPill = (s: string) => ({ published: 'pill-good', draft: 'pill-neutra
 const statusLabel = (s: string) => ({ published: 'Published', draft: 'Draft', in_review: 'In review' }[s] || s);
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-export function WorkspaceReviews({ wsId }: { wsId: string }) {
+export function WorkspaceReviews({ wsId, onOpen }: { wsId: string; onOpen?: (id: string) => void }) {
   const [rows, setRows] = useState<ReviewRow[] | null>(null);
   const [err, setErr] = useState('');
 
@@ -55,7 +55,7 @@ export function WorkspaceReviews({ wsId }: { wsId: string }) {
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.id} style={{ cursor: 'default' }}>
+              <tr key={r.id} onClick={() => onOpen?.(r.id)} style={{ cursor: onOpen ? 'pointer' : 'default' }}>
                 <td>
                   <div className="row gap10">
                     <div style={{ width: 28, height: 28, borderRadius: 7, flex: '0 0 28px', background: 'linear-gradient(135deg,#8B6BF0,#6A4BD8)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontFamily: 'var(--font-display)', fontSize: 11 }}>

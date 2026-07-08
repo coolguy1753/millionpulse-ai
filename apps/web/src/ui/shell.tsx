@@ -126,6 +126,12 @@ export function Sidebar({
       <div className="nav-label">Client workspace</div>
       <WorkspaceSwitcher ws={ws} workspaces={workspaces} onSwitch={onSwitch} />
 
+      {ws && (
+        <button className="btn btn-primary" style={{ margin: '6px 6px 8px', justifyContent: 'center' }} onClick={() => go('generate')}>
+          <Icon name="sparkle" size={16} /> Generate review
+        </button>
+      )}
+
       <div className="nav-label">Workspace</div>
       {WSNAV.map(([id, label, ic]) => (
         <button

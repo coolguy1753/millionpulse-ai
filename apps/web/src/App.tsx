@@ -18,6 +18,8 @@ import { WorkspaceAccounts } from './screens/WorkspaceAccounts';
 import { WorkspaceReviews } from './screens/WorkspaceReviews';
 import { WorkspaceTemplates } from './screens/WorkspaceTemplates';
 import { WorkspaceSources } from './screens/WorkspaceSources';
+import { Generate } from './screens/Generate';
+import { ReviewViewer } from './screens/ReviewViewer';
 import { Placeholder } from './screens/Placeholder';
 
 const TITLES: Record<string, [string, string | null]> = {
@@ -43,6 +45,7 @@ export default function App() {
   const [workspaces, setWorkspaces] = useState<WorkspaceSummary[]>([]);
   const [wsId, setWsId] = useState<string | null>(null);
   const [route, setRoute] = useState('overview');
+  const [reviewId, setReviewId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -71,6 +74,10 @@ export default function App() {
     setWsId(id);
     setRoute('dashboard');
   };
+  const openReview = (id: string) => {
+    setReviewId(id);
+    setRoute('review');
+  };
 
   const [title, crumb] = TITLES[route] || ['', null];
   const isHqRoute = HQ_ROUTES.includes(route);
@@ -92,9 +99,11 @@ export default function App() {
 
           {route === 'dashboard' && (ws ? <WorkspaceDashboard key={ws.id} wsId={ws.id} /> : <Placeholder title="Dashboard" phase="a connected workspace" />)}
           {route === 'accounts' && (ws ? <WorkspaceAccounts key={ws.id} wsId={ws.id} /> : <Placeholder title="Accounts" phase="a connected workspace" />)}
-          {route === 'reviews' && (ws ? <WorkspaceReviews key={ws.id} wsId={ws.id} /> : <Placeholder title="Reviews" phase="a connected workspace" />)}
+          {route === 'reviews' && (ws ? <WorkspaceReviews key={ws.id} wsId={ws.id} onOpen={openReview} /> : <Placeholder title="Reviews" phase="a connected workspace" />)}
           {route === 'templates' && (ws ? <WorkspaceTemplates key={ws.id} wsId={ws.id} /> : <Placeholder title="Templates" phase="a connected workspace" />)}
           {route === 'sources' && (ws ? <WorkspaceSources key={ws.id} wsId={ws.id} /> : <Placeholder title="Data Sources" phase="a connected workspace" />)}
+          {route === 'generate' && (ws ? <Generate key={ws.id} wsId={ws.id} onDone={openReview} onCancel={() => go('reviews')} /> : <Placeholder title="Generate" phase="a connected workspace" />)}
+          {route === 'review' && (ws && reviewId ? <ReviewViewer wsId={ws.id} reviewId={reviewId} onBack={() => go('reviews')} /> : <Placeholder title="Review" phase="a generated review" />)}
         </div>
       </main>
     </div>
