@@ -59,12 +59,15 @@ export class ClientsController {
   }
 
   @Get(':id')
-  async detail(@Param('id') id: string) {
-    const c = await this.prisma.client.findUnique({
+  detail(@Param('id') id: string) {
+    return this.prisma.client.findUnique({
       where: { id },
-      include: { vertical: true, subscription: true, workspace: { include: { _count: { select: { accounts: true, reviews: true, memberships: true } } } } },
+      include: {
+        vertical: true,
+        subscription: true,
+        workspace: { include: { _count: { select: { accounts: true, reviews: true, memberships: true } } } },
+      },
     });
-    return c;
   }
 
   @Post()

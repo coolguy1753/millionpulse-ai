@@ -8,6 +8,11 @@ import { Login } from './screens/Login';
 import { Overview } from './screens/Overview';
 import { Clients } from './screens/Clients';
 import { TeamRoles } from './screens/TeamRoles';
+import { Verticals } from './screens/Verticals';
+import { TemplateLibrary } from './screens/TemplateLibrary';
+import { AllReviews } from './screens/AllReviews';
+import { Billing } from './screens/Billing';
+import { Settings } from './screens/Settings';
 import { WorkspaceDashboard } from './screens/WorkspaceDashboard';
 import { Placeholder } from './screens/Placeholder';
 
@@ -75,11 +80,11 @@ export default function App() {
           {route === 'overview' && <Overview go={go} />}
           {route === 'clients' && <Clients onOpenWorkspace={openWorkspace} />}
           {route === 'roles' && <TeamRoles />}
-          {route === 'verticals' && <Placeholder title="Verticals" phase="Phase 1 (next)" />}
-          {route === 'lib' && <Placeholder title="Template Library" phase="Phase 3" />}
-          {route === 'allreviews' && <Placeholder title="All Reviews" phase="Phase 3" />}
-          {route === 'billing' && <Placeholder title="Billing & Plans" phase="Phase 4" />}
-          {route === 'settings' && <Placeholder title="Settings" phase="Phase 1 (next)" />}
+          {route === 'verticals' && <Verticals />}
+          {route === 'lib' && <TemplateLibrary />}
+          {route === 'allreviews' && <AllReviews />}
+          {route === 'billing' && <Billing />}
+          {route === 'settings' && <Settings />}
 
           {route === 'dashboard' && (ws ? <WorkspaceDashboard key={ws.id} wsId={ws.id} /> : <Placeholder title="Dashboard" phase="a connected workspace" />)}
           {route === 'accounts' && <Placeholder title="Accounts" phase="Phase 2" />}
